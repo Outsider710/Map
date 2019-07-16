@@ -6,12 +6,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import com.apator.map.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.*
 
 class MapFragment : Fragment() {
 
@@ -53,6 +57,9 @@ class MapFragment : Fragment() {
         }
         fabsync.setOnClickListener {
             Toast.makeText(context, "Synchronized",Toast.LENGTH_SHORT).show()
+            val current = Date()
+            val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
+            view.findViewById<TextView>(R.id.map_sync_date).text = formatter.format(current)
         }
         fabreset.setOnClickListener {
             Toast.makeText(context, "Location Reseted",Toast.LENGTH_SHORT).show()
