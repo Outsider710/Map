@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Map</string>
     <string name="API_KEY_MAPBOX">
-        pk.eyJ1IjoiaGVscHVzcGxzIiwiYSI6ImNqeTQ5NXJxNjExZ2gzZG9pOHp1bzllMmYifQ.l_ei9rjX714Ykc434iDBpA
+        sk.eyJ1IjoiaGVscHVzcGxzIiwiYSI6ImNqeTVweG5sdzA5OWYzbXJvZzByZW96cDQifQ.1QDWlVX6UoihEkrOFe608Q
     </string>
 
     <!-- TODO: Remove or change this placeholder text -->
