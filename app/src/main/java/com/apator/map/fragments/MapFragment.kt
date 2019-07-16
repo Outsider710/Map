@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.navigation.findNavController
 import com.apator.map.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.mapboxsdk.Mapbox
@@ -65,6 +66,7 @@ class MapFragment : Fragment() {
             Toast.makeText(context, "Location Reseted",Toast.LENGTH_SHORT).show()
         }
         fabsettings.setOnClickListener {
+            view.findNavController().navigate(R.id.action_mapFragment_to_settingsFragment2)
             Toast.makeText(context,"Settings",Toast.LENGTH_SHORT).show()
         }
         return view
