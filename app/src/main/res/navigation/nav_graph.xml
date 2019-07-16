@@ -5,5 +5,9 @@
             app:startDestination="@id/mapFragment">
 
     <fragment android:id="@+id/mapFragment" android:name="com.apator.map.fragments.MapFragment"
-              android:label="fragment_map" tools:layout="@layout/fragment_map"/>
+              android:label="fragment_map" tools:layout="@layout/fragment_map">
+        <action android:id="@+id/action_mapFragment_to_settingsFragment2" app:destination="@id/settingsFragment2"/>
+    </fragment>
+    <fragment android:id="@+id/settingsFragment2" android:name="com.apator.map.fragments.SettingsFragment"
+              android:label="SettingsFragment"/>
 </navigation>
