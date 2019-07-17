@@ -7,7 +7,10 @@
     <fragment android:id="@+id/mapFragment" android:name="com.apator.map.fragments.MapFragment"
               android:label="fragment_map" tools:layout="@layout/fragment_map">
         <action android:id="@+id/action_mapFragment_to_settingsFragment2" app:destination="@id/settingsFragment2"/>
+        <action android:id="@+id/action_mapFragment_to_passportFragment" app:destination="@id/passportFragment"/>
     </fragment>
     <fragment android:id="@+id/settingsFragment2" android:name="com.apator.map.fragments.SettingsFragment"
               android:label="SettingsFragment"/>
+    <fragment android:id="@+id/passportFragment" android:name="com.apator.map.fragments.PassportFragment"
+              android:label="fragment_passport" tools:layout="@layout/fragment_passport"/>
 </navigation>

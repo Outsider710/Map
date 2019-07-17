@@ -63,11 +63,11 @@ class MapFragment : Fragment() {
             view.findViewById<TextView>(R.id.map_sync_date).text = formatter.format(current)
         }
         fabreset.setOnClickListener {
-            Toast.makeText(context, "Location Reseted",Toast.LENGTH_SHORT).show()
+            view.findNavController().navigate(R.id.action_mapFragment_to_passportFragment)
         }
         fabsettings.setOnClickListener {
             view.findNavController().navigate(R.id.action_mapFragment_to_settingsFragment2)
-            Toast.makeText(context,"Settings",Toast.LENGTH_SHORT).show()
+
         }
         return view
     }
