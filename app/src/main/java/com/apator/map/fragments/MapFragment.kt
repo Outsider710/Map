@@ -63,9 +63,11 @@ class MapFragment : Fragment() {
             view.findViewById<TextView>(R.id.map_sync_date).text = formatter.format(current)
         }
         fabreset.setOnClickListener {
+            isFabOpen = false
             view.findNavController().navigate(R.id.action_mapFragment_to_passportFragment)
         }
         fabsettings.setOnClickListener {
+            isFabOpen = false
             view.findNavController().navigate(R.id.action_mapFragment_to_settingsFragment2)
 
         }

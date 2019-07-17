@@ -8,6 +8,17 @@
                                                    tools:context=".fragments.PassportFragment">
 
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/passport_back"
+            android:src="@drawable/baseline_keyboard_backspace_24"
+            android:backgroundTint="#C5C5C5"
+            app:backgroundTint="#C5C5C5"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
     <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -16,17 +27,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/passport_back"
-                    android:src="@drawable/baseline_keyboard_backspace_24"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:backgroundTint="#C5C5C5"
-                    app:backgroundTint="#C5C5C5"/>
             <TextView
                     android:text="Name"
                     android:layout_width="wrap_content"
@@ -191,11 +191,35 @@
             <com.jjoe64.graphview.GraphView
                     android:layout_width="wrap_content"
                     android:layout_height="400dp"
-                    android:id="@+id/graph"
-                    tools:layout_editor_absoluteY="116dp"
-                    tools:layout_editor_absoluteX="8dp"
+                    android:id="@+id/graphAC"
                     app:layout_constraintTop_toBottomOf="@+id/distance_title"
                     android:layout_marginTop="32dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"/>
+            <com.jjoe64.graphview.GraphView
+                    android:layout_width="wrap_content"
+                    android:layout_height="400dp"
+                    android:id="@+id/graphDC"
+                    app:layout_constraintTop_toBottomOf="@+id/graphAC"
+                    android:layout_marginTop="48dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+            <com.jjoe64.graphview.GraphView
+                    android:layout_width="wrap_content"
+                    android:layout_height="400dp"
+                    android:id="@+id/graphPOA"
+                    app:layout_constraintTop_toBottomOf="@+id/graphDC"
+                    android:layout_marginTop="48dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+            <com.jjoe64.graphview.GraphView
+                    android:layout_width="wrap_content"
+                    android:layout_height="400dp"
+                    android:id="@+id/graphSolRad"
+                    app:layout_constraintTop_toBottomOf="@+id/graphPOA"
+                    android:layout_marginTop="48dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"/>
 

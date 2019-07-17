@@ -12,7 +12,6 @@ import androidx.navigation.Navigation
 import com.apator.map.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jjoe64.graphview.GraphView
-import com.jjoe64.graphview.LegendRenderer
 import com.jjoe64.graphview.series.BarGraphSeries
 import com.jjoe64.graphview.series.DataPoint
 
@@ -24,8 +23,18 @@ class PassportFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_passport, container, false)
-        val graph = view.findViewById<GraphView>(R.id.graph)
-        genereteGraph(graph, generateGraphLines(),generateGraphLines(),generateGraphLines())
+        val graphac = view.findViewById<GraphView>(R.id.graphAC)
+        genereteGraph(graphac, generateGraphLines(600), "AC", "KW/h AC", 2137.69)
+
+        val graphdc = view.findViewById<GraphView>(R.id.graphDC)
+        genereteGraph(graphdc, generateGraphLines(600), "DC", "KW/h DC", 2137.69)
+
+        val graphpoa = view.findViewById<GraphView>(R.id.graphPOA)
+        genereteGraph(graphpoa, generateGraphLines(600), "POA", "kWh/m2", 2137.69)
+
+        val graphsolrad = view.findViewById<GraphView>(R.id.graphSolRad)
+        genereteGraph(graphsolrad, generateGraphLines(10), "Solar Radiation", "kWh/m2/day", 21.37)
+
         val back = view.findViewById<FloatingActionButton>(R.id.passport_back)
         back.setOnClickListener {
             Navigation.findNavController(it).popBackStack()
@@ -34,21 +43,21 @@ class PassportFragment : Fragment() {
     }
 
     //Test functions
-    private fun generateGraphLines(): BarGraphSeries<DataPoint> {
+    private fun generateGraphLines(maxval: Int): BarGraphSeries<DataPoint> {
         return BarGraphSeries(
             arrayOf(
-                DataPoint(1.0, Math.random() * 600),
-                DataPoint(2.0, Math.random() * 600),
-                DataPoint(3.0, Math.random() * 600),
-                DataPoint(4.0, Math.random() * 600),
-                DataPoint(5.0, Math.random() * 600),
-                DataPoint(6.0, Math.random() * 600),
-                DataPoint(7.0, Math.random() * 600),
-                DataPoint(8.0, Math.random() * 600),
-                DataPoint(9.0, Math.random() * 600),
-                DataPoint(10.0, Math.random() * 600),
-                DataPoint(11.0, Math.random() * 600),
-                DataPoint(12.0, Math.random() * 600)
+                DataPoint(1.0, Math.random() * maxval),
+                DataPoint(2.0, Math.random() * maxval),
+                DataPoint(3.0, Math.random() * maxval),
+                DataPoint(4.0, Math.random() * maxval),
+                DataPoint(5.0, Math.random() * maxval),
+                DataPoint(6.0, Math.random() * maxval),
+                DataPoint(7.0, Math.random() * maxval),
+                DataPoint(8.0, Math.random() * maxval),
+                DataPoint(9.0, Math.random() * maxval),
+                DataPoint(10.0, Math.random() * maxval),
+                DataPoint(11.0, Math.random() * maxval),
+                DataPoint(12.0, Math.random() * maxval)
             )
         )
     }
@@ -56,25 +65,21 @@ class PassportFragment : Fragment() {
     private fun genereteGraph(
         graphView: GraphView,
         series1: BarGraphSeries<DataPoint>,
-        series2: BarGraphSeries<DataPoint>,
-        series3: BarGraphSeries<DataPoint>
+        title: String,
+        leftvalname: String,
+        annualValue: Double
     ) {
         val gridRen = graphView.gridLabelRenderer
-        val legendRenderer = graphView.legendRenderer
         gridRen.numHorizontalLabels = 12
         gridRen.numVerticalLabels = 10
-        series1.color = Color.YELLOW
-        series1.title = "AC"
-        series2.color = Color.RED
-        series2.title = "DC"
-        series3.title = "XD"
+        gridRen.verticalAxisTitle = leftvalname
+        gridRen.horizontalAxisTitle = "Annual: " + annualValue + " " + leftvalname
+        graphView.title = title
+        series1.color = Color.BLUE
         graphView.addSeries(series1)
-        graphView.addSeries(series2)
-        graphView.addSeries(series3)
-        legendRenderer.isVisible = true
-        legendRenderer.align = LegendRenderer.LegendAlign.TOP
 
-}
+
+    }
     //End of Test functions
 
 }
