@@ -7,8 +7,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.Navigation
 
 import com.apator.map.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.LegendRenderer
 import com.jjoe64.graphview.series.BarGraphSeries
@@ -24,6 +26,10 @@ class PassportFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_passport, container, false)
         val graph = view.findViewById<GraphView>(R.id.graph)
         genereteGraph(graph, generateGraphLines(),generateGraphLines(),generateGraphLines())
+        val back = view.findViewById<FloatingActionButton>(R.id.passport_back)
+        back.setOnClickListener {
+            Navigation.findNavController(it).popBackStack()
+        }
         return view
     }
 
