@@ -38,6 +38,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginTop="16dp"/>
+
             <com.jjoe64.graphview.GraphView
                     android:layout_width="wrap_content"
                     android:layout_height="400dp"

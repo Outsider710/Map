@@ -10,28 +10,20 @@ import android.view.ViewGroup
 
 import com.apator.map.R
 import com.jjoe64.graphview.GraphView
+import com.jjoe64.graphview.LegendRenderer
 import com.jjoe64.graphview.series.BarGraphSeries
 import com.jjoe64.graphview.series.DataPoint
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- *
- */
 class PassportFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_passport, container, false)
         val graph = view.findViewById<GraphView>(R.id.graph)
-        generete_graph(graph, generateGraphLines(),generateGraphLines(),generateGraphLines())
+        genereteGraph(graph, generateGraphLines(),generateGraphLines(),generateGraphLines())
         return view
     }
 
@@ -55,7 +47,7 @@ class PassportFragment : Fragment() {
         )
     }
 
-    private fun generete_graph(
+    private fun genereteGraph(
         graphView: GraphView,
         series1: BarGraphSeries<DataPoint>,
         series2: BarGraphSeries<DataPoint>,
@@ -73,7 +65,8 @@ class PassportFragment : Fragment() {
         graphView.addSeries(series1)
         graphView.addSeries(series2)
         graphView.addSeries(series3)
-        legendRenderer.setVisible(true)
+        legendRenderer.isVisible = true
+        legendRenderer.align = LegendRenderer.LegendAlign.TOP
 
 }
     //End of Test functions
