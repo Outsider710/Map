@@ -10,8 +10,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.findNavController
 import com.apator.map.R
+import com.apator.map.viewmodel.SolarListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.annotations.MarkerOptions
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
 import java.text.SimpleDateFormat
@@ -28,6 +31,7 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val solarListViewModel = SolarListViewModel()
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_map, container, false)
 
@@ -39,8 +43,21 @@ class MapFragment : Fragment() {
         mapView?.getMapAsync { mapboxMap ->
 
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
+                solarListViewModel.fetchSolars()
 
-                // Map is set up and the style has loaded. Now you can add data or make other map adjustments
+                solarListViewModel.solarLiveData.observe(this,androidx.lifecycle.Observer {
+                   it.outputs?.allStations?.forEach { station->
+                       mapboxMap?.addMarker(
+                           MarkerOptions()
+                           .position(LatLng(station?.lat!!, station.lon!!))
+                           .title(station?.id))
+                   }
+
+
+
+
+               })
+
 
             }
 
