@@ -26,6 +26,7 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
@@ -57,7 +58,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         mapView = view.findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync(this)
-        syncMarkers()/*{ mapboxMap ->
+        syncMarkers()
+        /*{ mapboxMap ->
 
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
                 solarViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
@@ -178,6 +180,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         )
                 )
         )
+        mapboxMap.addOnMapClickListener(MapboxMap.OnMapClickListener {
+            val string = String.format(Locale.US, "User clicked at: %s", it.toString())
+
+            Toast.makeText(context, string, Toast.LENGTH_LONG).show()
+            true
+        })
     }
 }
 
