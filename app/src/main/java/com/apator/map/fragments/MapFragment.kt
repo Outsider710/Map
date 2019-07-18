@@ -37,6 +37,9 @@ class MapFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_map, container, false)
 
 
+
+
+
         Mapbox.getInstance(context!!, R.string.API_KEY_MAPBOX.toString())
 
         mapView = view.findViewById(R.id.mapView)
@@ -78,6 +81,14 @@ class MapFragment : Fragment() {
         }
         fabreset.setOnClickListener {
             isFabOpen = false
+
+
+            solarViewModel.fetchSolar()
+            solarViewModel.solarDetailsLiveData.observe(this,androidx.lifecycle.Observer {
+                Toast.makeText(context,it.toString(),Toast.LENGTH_SHORT).show()
+            })
+
+
             view.findNavController().navigate(R.id.action_mapFragment_to_passportFragment)
         }
         fabsettings.setOnClickListener {

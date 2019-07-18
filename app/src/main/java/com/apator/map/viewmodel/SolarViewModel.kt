@@ -6,8 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.apator.map.ApiFactory
 import com.apator.map.database.Entity.SolarEntity
+import com.apator.map.model.singlesolar.Solar
 import com.apator.map.model.solarlist.SolarsList
-import com.apator.map.repositiry.SolarListRepository
+import com.apator.map.repositiry.SolarRepository
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -17,7 +18,7 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
     //  database
     //
 
-    val repository = SolarListRepository(ApiFactory.soalrApi,application)
+    val repository = SolarRepository(ApiFactory.soalrApi,application)
 
 
     fun insertAllStations(solars: List<SolarEntity>) = viewModelScope.launch(Dispatchers.IO) {
@@ -41,10 +42,17 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
 
 
     val solarLiveData = MutableLiveData<SolarsList>()
+    var solarDetailsLiveData = MutableLiveData<Solar>()
+    fun fetchSolar(){
+        scope.launch {
+            val solar = repository.getDetails()
+            solarDetailsLiveData.postValue(solar)
+        }
+    }
 
     fun fetchSolarsAmerica() {
         scope.launch {
-            var solars = repository.getSolarListAmerica()
+            val solars = repository.getSolarListAmerica()
             solarLiveData.postValue(solars)
 
         }
@@ -52,7 +60,7 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
 
     fun fetchSolarsAsia() {
         scope.launch {
-            var solars = repository.getSolarListAsia()
+            val solars = repository.getSolarListAsia()
             solarLiveData.postValue(solars)
 
         }

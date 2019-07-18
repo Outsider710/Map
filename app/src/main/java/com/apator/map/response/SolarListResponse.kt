@@ -7,5 +7,5 @@ import com.apator.map.model.solarlist.SolarsList
 data class SolarListResponse(
     val results: List<SolarsList>
 
-){
+) {
 }
