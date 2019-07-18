@@ -10,20 +10,21 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.findNavController
 import com.apator.map.R
+import com.apator.map.database.entitis.SolarEntity
+import com.apator.map.database.viewmodels.SolarDbViewModel
+import com.apator.map.helpers.mappers.SolarJSONToDb
 import com.apator.map.viewmodel.SolarListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.annotations.MarkerOptions
-import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
+import org.koin.android.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.*
 
 class MapFragment : Fragment() {
-
-
+    val solarListViewModel = SolarListViewModel()
+    val solarDbViewModel:SolarDbViewModel by viewModel()
     private var mapView: MapView? = null
     private var isFabOpen = false
 
@@ -31,7 +32,7 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val solarListViewModel = SolarListViewModel()
+
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_map, container, false)
 
@@ -43,20 +44,7 @@ class MapFragment : Fragment() {
         mapView?.getMapAsync { mapboxMap ->
 
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
-                solarListViewModel.fetchSolars()
 
-                solarListViewModel.solarLiveData.observe(this,androidx.lifecycle.Observer {
-                   it.outputs?.allStations?.forEach { station->
-                       mapboxMap?.addMarker(
-                           MarkerOptions()
-                           .position(LatLng(station?.lat!!, station.lon!!))
-                           .title(station?.id))
-                   }
-
-
-
-
-               })
 
 
             }
@@ -78,6 +66,8 @@ class MapFragment : Fragment() {
             val current = Date()
             val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
             view.findViewById<TextView>(R.id.map_sync_date).text = formatter.format(current)
+
+            solarSync()
         }
         fabreset.setOnClickListener {
             Toast.makeText(context, "Location Reseted",Toast.LENGTH_SHORT).show()
@@ -87,6 +77,23 @@ class MapFragment : Fragment() {
             Toast.makeText(context,"Settings",Toast.LENGTH_SHORT).show()
         }
         return view
+    }
+
+    private fun solarSync() {
+
+
+        solarDbViewModel.insertSolar(SolarEntity("asd",50.0,50.0))
+
+        solarListViewModel.fetchSolars()
+
+        solarListViewModel.solarLiveData.observe(this,androidx.lifecycle.Observer {solarList->
+            solarList.outputs?.allStations?.forEach {
+
+                val solarEntity = SolarJSONToDb.map(it!!)
+
+
+            }
+        })
     }
 
     private fun hideFabMenu(

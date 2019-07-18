@@ -16,11 +16,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        solarViewModel.fetchSolars()
-        val data=solarViewModel.solarLiveData.observe(this, Observer {
-            Toast.makeText(applicationContext,it.toString(),Toast.LENGTH_LONG).show()
-        }
-        )
+
 
     }
 }
