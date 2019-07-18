@@ -79,11 +79,12 @@ class MapFragment : Fragment() {
             solarSync()
         }
         fabreset.setOnClickListener {
-            Toast.makeText(context, "Location Reseted", Toast.LENGTH_SHORT).show()
+            isFabOpen = false
+            view.findNavController().navigate(R.id.action_mapFragment_to_passportFragment)
         }
         fabsettings.setOnClickListener {
+            isFabOpen = false
             view.findNavController().navigate(R.id.action_mapFragment_to_settingsFragment2)
-            Toast.makeText(context, "Settings", Toast.LENGTH_SHORT).show()
         }
         return view
     }
