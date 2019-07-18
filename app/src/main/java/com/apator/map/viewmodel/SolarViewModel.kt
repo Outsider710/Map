@@ -1,35 +1,62 @@
 package com.apator.map.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.apator.map.ApiFactory
-import com.apator.map.model.singlesolar.Solar
-import com.apator.map.repositiry.SolarRepository
+import com.apator.map.database.Entity.SolarEntity
+import com.apator.map.model.solarlist.SolarsList
+import com.apator.map.repositiry.SolarListRepository
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 
-class SolarViewModel: ViewModel()
-{
+class SolarViewModel(application: Application) : AndroidViewModel(application) {
+    //
+    //  database
+    //
+
+    val repository = SolarListRepository(ApiFactory.soalrApi,application)
+
+
+    fun insertAllStations(solars: List<SolarEntity>) = viewModelScope.launch(Dispatchers.IO) {
+        repository.insertAllSolars(solars)
+    }
+
+    fun getAllSolars() = repository.solarDao.getAllSolars()
+
+
+    //
+    // JSON
+    //
+
     private val parentJob = Job()
 
     private val coroutineContext: CoroutineContext
         get() = parentJob + Dispatchers.Default
 
     private val scope = CoroutineScope(coroutineContext)
+    
 
-    private val repository = SolarRepository(ApiFactory.soalrApi)
 
+    val solarLiveData = MutableLiveData<SolarsList>()
 
-    val solarLiveData = MutableLiveData<List<Solar>>()
-
-    fun fetchSolars(){
+    fun fetchSolarsAmerica() {
         scope.launch {
-            val soalars = repository.getSolars()
-            solarLiveData.postValue(soalars)
+            var solars = repository.getSolarListAmerica()
+            solarLiveData.postValue(solars)
+
         }
     }
 
+    fun fetchSolarsAsia() {
+        scope.launch {
+            var solars = repository.getSolarListAsia()
+            solarLiveData.postValue(solars)
+
+        }
+    }
 
     fun cancelAllRequests() = coroutineContext.cancel()
 

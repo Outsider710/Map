@@ -11,9 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.apator.map.R
 import com.apator.map.database.Entity.SolarEntity
-import com.apator.map.database.viewmodel.SolarDbViewModel
 import com.apator.map.helpers.mappers.SolarJSONToDb
-import com.apator.map.viewmodel.SolarListViewModel
+import com.apator.map.viewmodel.SolarViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
@@ -25,8 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class MapFragment : Fragment() {
-    val solarListViewModel = SolarListViewModel()
-    val solarDbViewModel: SolarDbViewModel by viewModel()
+    val solarViewModel: SolarViewModel by viewModel()
     private var mapView: MapView? = null
     private var isFabOpen = false
 
@@ -46,7 +44,7 @@ class MapFragment : Fragment() {
         mapView?.getMapAsync { mapboxMap ->
 
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
-                solarDbViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
+                solarViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
 
                     it.forEach { solarEntity ->
                         mapboxMap?.addMarker(
@@ -90,16 +88,15 @@ class MapFragment : Fragment() {
     }
 
     private fun solarSync() {
-        solarDbViewModel
-        solarListViewModel.fetchSolarsAmerica()
-        solarListViewModel.fetchSolarsAsia()
+        solarViewModel.fetchSolarsAmerica()
+        solarViewModel.fetchSolarsAsia()
 
-        solarListViewModel.solarLiveData.observe(this, androidx.lifecycle.Observer { solarList ->
+        solarViewModel.solarLiveData.observe(this, androidx.lifecycle.Observer { solarList ->
             val solarEntity = arrayListOf<SolarEntity>()
             solarList.outputs?.allStations?.forEach {
                 solarEntity.add(SolarJSONToDb.map(it!!))
             }
-            solarDbViewModel.insertAllStations(solarEntity)
+            solarViewModel.insertAllStations(solarEntity)
 
 
         })

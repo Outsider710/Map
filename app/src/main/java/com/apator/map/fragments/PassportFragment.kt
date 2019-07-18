@@ -3,12 +3,11 @@ package com.apator.map.fragments
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
-
 import com.apator.map.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jjoe64.graphview.GraphView
@@ -41,6 +40,7 @@ class PassportFragment : Fragment() {
         }
         return view
     }
+
 
     //Test functions
     private fun generateGraphLines(maxval: Int): BarGraphSeries<DataPoint> {

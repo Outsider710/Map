@@ -1,11 +1,34 @@
 package com.apator.map.repositiry
 
+import android.app.Application
+import androidx.annotation.WorkerThread
 import com.apator.map.SolarApi
+import com.apator.map.database.Entity.SolarEntity
+import com.apator.map.database.SolarDatabase
 import com.apator.map.model.solarlist.SolarsList
 import com.mapbox.mapboxsdk.geometry.LatLng
 
-class SolarListRepository(private val api:SolarApi) : BaseRepository() {
+class SolarListRepository(private val api:SolarApi,application: Application) : BaseRepository() {
+    //
+    // Databse
+    //
 
+
+    private val database = SolarDatabase.getDatabse(application)
+    val solarDao = database.solarDao()
+
+    @WorkerThread
+    suspend fun insertAllSolars(solars:List<SolarEntity>)
+    {
+
+        solarDao.insertAllSolars(*solars.toTypedArray())
+
+    }
+
+
+    //
+    // JSON
+    //
     suspend fun getSolarListAmerica() : SolarsList?{
 
         //safeApiCall is defined in BaseRepository.kt (https://gist.github.com/navi25/67176730f5595b3f1fb5095062a92f15)

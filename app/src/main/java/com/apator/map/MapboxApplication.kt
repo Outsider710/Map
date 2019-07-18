@@ -1,7 +1,7 @@
 package com.apator.map
 
 import android.app.Application
-import com.apator.map.database.viewmodel.SolarDbViewModel
+import com.apator.map.viewmodel.SolarViewModel
 import com.mapbox.mapboxsdk.Mapbox
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -19,7 +19,7 @@ class MapboxApplication : Application() {
 
         startKoin {
             androidContext(this@MapboxApplication)
-            modules(listOf(module { viewModel { SolarDbViewModel(androidApplication()) } }))
+            modules(listOf(module { viewModel { SolarViewModel(androidApplication()) } }))
         }
 
 

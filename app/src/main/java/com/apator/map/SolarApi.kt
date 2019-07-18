@@ -14,7 +14,7 @@ interface SolarApi {
     @GET("api/solar/data_query/v1.json?api_key=5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws&lat=40&lon=-105&radius=2000&all=1")
     fun getSolarLsitAmerica(): Deferred<Response<SolarsList>>
 
-    @GET("api/solar/data_query/v1.json?api_key=5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws&lat=23&lon=90&radius=2000&all=1")
+    @GET("api/solar/data_query/v1.json?api_key=5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws&lat=40&lon=85&radius=2000&all=1")
     fun getSolarLsitAsia(): Deferred<Response<SolarsList>>
 
 
