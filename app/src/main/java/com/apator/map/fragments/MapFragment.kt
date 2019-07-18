@@ -7,26 +7,40 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.apator.map.R
 import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.mappers.SolarJSONToDb
+import com.apator.map.tools.DrawableToBitmap
 import com.apator.map.viewmodel.SolarViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
-class MapFragment : Fragment() {
+class MapFragment : Fragment(), OnMapReadyCallback {
     val solarViewModel: SolarViewModel by viewModel()
     private var mapView: MapView? = null
     private var isFabOpen = false
+    private val geoJson = GeoJsonSource("SOURCE_ID")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,9 +53,11 @@ class MapFragment : Fragment() {
 
         Mapbox.getInstance(context!!, R.string.API_KEY_MAPBOX.toString())
 
+
         mapView = view.findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
-        mapView?.getMapAsync { mapboxMap ->
+        mapView?.getMapAsync(this)
+        syncMarkers()/*{ mapboxMap ->
 
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
                 solarViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
@@ -57,7 +73,7 @@ class MapFragment : Fragment() {
             }
 
 
-        }
+        }*/
         val fab = view.findViewById<FloatingActionButton>(R.id.fab_more)
         val fabsync = view.findViewById<FloatingActionButton>(R.id.fab_sync)
         val fabreset = view.findViewById<FloatingActionButton>(R.id.fab_reset)
@@ -129,6 +145,39 @@ class MapFragment : Fragment() {
         fabsettings?.animate()?.translationY(-600f)
     }
 
+    private fun syncMarkers() {
+        val markers = ArrayList<Feature>()
+        solarViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
 
+            it.forEach { solarEntity ->
+                markers.add(Feature.fromGeometry(Point.fromLngLat(solarEntity.lon, solarEntity.lat)))
+            }
+            geoJson.setGeoJson(FeatureCollection.fromFeatures(markers))
+        })
+    }
+
+
+    override fun onMapReady(mapboxMap: MapboxMap) {
+        val bitMapIcon = DrawableToBitmap.drawableToBitmap(
+            ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.baseline_location_on_24,
+                null
+            )!!
+        )!!
+        mapboxMap.setStyle(
+            Style.Builder().fromUrl("mapbox://styles/helpuspls/cjy8p994g08ot1cmm5t3naox5")
+                .withSource(geoJson)
+                .withImage("ICON_ID", bitMapIcon)
+                .withLayer(
+                    SymbolLayer("LAYER_ID", "SOURCE_ID")
+                        .withProperties(
+                            PropertyFactory.iconImage("ICON_ID"),
+                            iconAllowOverlap(true),
+                            iconOffset(arrayOf(0f, -9f))
+                        )
+                )
+        )
+    }
 }
 
