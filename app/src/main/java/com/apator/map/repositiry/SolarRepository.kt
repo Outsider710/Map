@@ -48,9 +48,9 @@ class SolarRepository(private val api: SolarApi, application: Application) : Bas
         return solarResponse
     }
 
-    suspend fun getDetails(): Solar? {
+    suspend fun getDetails(apiKey:String): Solar? {
         val response = safeApiCall(
-            call = { api.getSolarDetails().await() },
+            call = { api.getSolarDetails(apiKey).await() },
             errorMessage = "Error Fetching details of solar"
         )
         return response

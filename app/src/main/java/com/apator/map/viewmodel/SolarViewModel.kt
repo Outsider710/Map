@@ -43,9 +43,9 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
 
     val solarLiveData = MutableLiveData<SolarsList>()
     var solarDetailsLiveData = MutableLiveData<Solar>()
-    fun fetchSolar(){
+    fun fetchSolar(apiKey:String){
         scope.launch {
-            val solar = repository.getDetails()
+            val solar = repository.getDetails(apiKey)
             solarDetailsLiveData.postValue(solar)
         }
     }

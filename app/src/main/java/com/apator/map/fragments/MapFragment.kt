@@ -83,7 +83,7 @@ class MapFragment : Fragment() {
             isFabOpen = false
 
 
-            solarViewModel.fetchSolar()
+            solarViewModel.fetchSolar("5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws")
             solarViewModel.solarDetailsLiveData.observe(this,androidx.lifecycle.Observer {
                 Toast.makeText(context,it.toString(),Toast.LENGTH_SHORT).show()
             })
