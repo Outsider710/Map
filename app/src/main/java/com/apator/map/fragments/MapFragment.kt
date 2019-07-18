@@ -2,20 +2,22 @@ package com.apator.map.fragments
 
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.apator.map.R
-import com.apator.map.database.entitis.SolarEntity
-import com.apator.map.database.viewmodels.SolarDbViewModel
+import com.apator.map.database.Entity.SolarEntity
+import com.apator.map.database.viewmodel.SolarDbViewModel
 import com.apator.map.helpers.mappers.SolarJSONToDb
 import com.apator.map.viewmodel.SolarListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.annotations.MarkerOptions
+import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Style
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -24,7 +26,7 @@ import java.util.*
 
 class MapFragment : Fragment() {
     val solarListViewModel = SolarListViewModel()
-    val solarDbViewModel:SolarDbViewModel by viewModel()
+    val solarDbViewModel: SolarDbViewModel by viewModel()
     private var mapView: MapView? = null
     private var isFabOpen = false
 
@@ -44,9 +46,16 @@ class MapFragment : Fragment() {
         mapView?.getMapAsync { mapboxMap ->
 
             mapboxMap.setStyle(Style.MAPBOX_STREETS) {
+                solarDbViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
 
-
-
+                    it.forEach { solarEntity ->
+                        mapboxMap?.addMarker(
+                            MarkerOptions()
+                                .position(LatLng(solarEntity.lat, solarEntity.lon))
+                                .title(solarEntity.id)
+                        )
+                    }
+                })
             }
 
 
@@ -56,13 +65,13 @@ class MapFragment : Fragment() {
         val fabreset = view.findViewById<FloatingActionButton>(R.id.fab_reset)
         val fabsettings = view.findViewById<FloatingActionButton>(R.id.fab_settings)
         fab.setOnClickListener {
-            when(isFabOpen){
+            when (isFabOpen) {
                 false -> showFabMenu(fab, fabsync, fabsettings, fabreset)
                 true -> hideFabMenu(fab, fabsync, fabsettings, fabreset)
             }
         }
         fabsync.setOnClickListener {
-            Toast.makeText(context, "Synchronized",Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
             val current = Date()
             val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
             view.findViewById<TextView>(R.id.map_sync_date).text = formatter.format(current)
@@ -70,29 +79,28 @@ class MapFragment : Fragment() {
             solarSync()
         }
         fabreset.setOnClickListener {
-            Toast.makeText(context, "Location Reseted",Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Location Reseted", Toast.LENGTH_SHORT).show()
         }
         fabsettings.setOnClickListener {
             view.findNavController().navigate(R.id.action_mapFragment_to_settingsFragment2)
-            Toast.makeText(context,"Settings",Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Settings", Toast.LENGTH_SHORT).show()
         }
         return view
     }
 
     private fun solarSync() {
+        solarDbViewModel
+        solarListViewModel.fetchSolarsAmerica()
+        solarListViewModel.fetchSolarsAsia()
 
-
-        solarDbViewModel.insertSolar(SolarEntity("asd",50.0,50.0))
-
-        solarListViewModel.fetchSolars()
-
-        solarListViewModel.solarLiveData.observe(this,androidx.lifecycle.Observer {solarList->
+        solarListViewModel.solarLiveData.observe(this, androidx.lifecycle.Observer { solarList ->
+            val solarEntity = arrayListOf<SolarEntity>()
             solarList.outputs?.allStations?.forEach {
-
-                val solarEntity = SolarJSONToDb.map(it!!)
-
-
+                solarEntity.add(SolarJSONToDb.map(it!!))
             }
+            solarDbViewModel.insertAllStations(solarEntity)
+
+
         })
     }
 
