@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.0"
@@ -42,5 +44,72 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.0.0'
     implementation 'androidx.preference:preference:1.1.0-rc01'
 
+    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.0.0"
+
+
+    //KOIN
+    implementation 'org.koin:koin-android:2.0.1'
+    implementation 'org.koin:koin-android-viewmodel:2.0.1'
+
+
+
+    def moshiVersion="1.8.0"
+    def retrofit2_version = "2.5.0"
+    def okhttp3_version = "3.12.0"
+    def kotlinCoroutineVersion = "1.0.1"
+    def picassoVersion = "2.71828"
+
+
+    //Moshi
+    implementation "com.squareup.moshi:moshi-kotlin:$moshiVersion"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
+
+    //Retrofit2
+    implementation "com.squareup.retrofit2:retrofit:$retrofit2_version"
+    implementation "com.squareup.retrofit2:converter-moshi:$retrofit2_version"
+    implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2"
+    // https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-gson
+
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+
+
+    //Okhttp3
+    implementation "com.squareup.okhttp3:okhttp:$okhttp3_version"
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
+
+    //Picasso for Image Loading
+    implementation ("com.squareup.picasso:picasso:$picassoVersion"){
+        exclude group: "com.android.support"
+    }
+
+    //Kotlin Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutineVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutineVersion"
+
+    api 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-alpha02'
+
+
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+
+    //ROOM
+
+    implementation "androidx.room:room-runtime:2.1.0"
+    implementation "androidx.room:room-ktx:2.1.0"
+    implementation "androidx.room:room-rxjava2:2.1.0"
+    implementation "androidx.room:room-guava:2.1.0"
+    testImplementation "androidx.room:room-testing:2.1.0"
+
+
+
+    debugImplementation "com.amitshekhar.android:debug-db:1.0.6"
+
+
+
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor  'android.arch.persistence.room:compiler:1.1.1'
+    kapt 'android.arch.persistence.room:compiler:1.1.1'
 
 }
