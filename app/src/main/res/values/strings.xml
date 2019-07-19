@@ -3,7 +3,7 @@
     <string name="API_KEY_MAPBOX">
         sk.eyJ1IjoiaGVscHVzcGxzIiwiYSI6ImNqeTVweG5sdzA5OWYzbXJvZzByZW96cDQifQ.1QDWlVX6UoihEkrOFe608Q
     </string>
-    
+    <string name="DATA_API_KEY">5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sync_key">Sync_Key</string>
     <string name="timeWindow_key">Time_Window</string>
