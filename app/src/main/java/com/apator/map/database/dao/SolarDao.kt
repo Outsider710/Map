@@ -5,7 +5,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.apator.map.database.Entity.DetailsEntity
 import com.apator.map.database.Entity.SolarEntity
+import retrofit2.http.GET
 
 @Dao
 interface SolarDao {
@@ -13,5 +15,14 @@ interface SolarDao {
     fun insertAllSolars(vararg solarEntity: SolarEntity)
 
     @Query("SELECT * FROM solar")
-    fun getAllSolars():LiveData<List<SolarEntity>>
+    fun getAllSolars(): LiveData<List<SolarEntity>>
+
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertDetails(detailsEntity: DetailsEntity)
+
+    @Query("SELECT * FROM details WHERE id == :id")
+    fun getDetailsById(id:String):LiveData<DetailsEntity>
+
+
 }

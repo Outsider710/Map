@@ -12,6 +12,8 @@ data class Inputs(
     val lat: String?,
     @SerializedName("lon")
     val lon: String?,
+    @SerializedName("file_id")
+    val file_id:String?,
     @SerializedName("losses")
     val losses: String?,
     @SerializedName("module_type")
