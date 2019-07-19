@@ -30,6 +30,7 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,7 +55,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         Mapbox.getInstance(context!!, R.string.API_KEY_MAPBOX.toString())
 
 
-        mapView = view.findViewById(R.id.mapView)
+        mapView = view.mapView
         mapView.apply {
             getMapAsync {
                 onMapReady(it)
