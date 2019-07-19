@@ -1,7 +1,6 @@
 package com.apator.map.fragments
 
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import com.apator.map.R
 import com.apator.map.database.Entity.SolarEntity
@@ -40,6 +40,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var mapView: MapView? = null
     private var isFabOpen = false
     private val geoJson = GeoJsonSource("SOURCE_ID")
+    val bundle = Bundle()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -150,7 +151,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         solarViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
 
             it.forEach { solarEntity ->
-                markers.add(Feature.fromGeometry(Point.fromLngLat(solarEntity.lon, solarEntity.lat)))
+                val feature = Feature.fromGeometry(Point.fromLngLat(solarEntity.lon, solarEntity.lat))
+                feature.addStringProperty("id",solarEntity.id)
+                markers.add(feature)
             }
             geoJson.setGeoJson(FeatureCollection.fromFeatures(markers))
         })
@@ -183,14 +186,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
             if (features.isNotEmpty()) {
                 val selectedFeature = features[0]
-                val title = selectedFeature.getStringProperty("title")
-                Toast.makeText(context, "You selected $title", Toast.LENGTH_SHORT).show()
+                val id = selectedFeature.getStringProperty("id")
+                bundle.putString("id",id)
+                Navigation.findNavController(view!!).navigate(R.id.action_mapFragment_to_passportFragment,bundle)
             }
             true
         }
 
     }
-    
+
 
 }
 
