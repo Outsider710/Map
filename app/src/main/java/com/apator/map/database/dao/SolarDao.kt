@@ -22,7 +22,7 @@ interface SolarDao {
     fun insertDetails(detailsEntity: DetailsEntity)
 
     @Query("SELECT * FROM details WHERE id == :id")
-    fun getDetailsById(id:String):LiveData<DetailsEntity>
+    fun getDetailsById(id:String):LiveData<DetailsEntity?>
 
 
 }
