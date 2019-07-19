@@ -25,12 +25,13 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
     fun insertAllStations(solars: List<SolarEntity>) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertAllSolars(solars)
     }
+
     fun insertDetails(detailsEntity: DetailsEntity) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertDetails(detailsEntity)
     }
 
     fun getAllSolars() = repository.solarDao.getAllSolars()
-    fun getDetailsById(id:String) = repository.solarDao.getDetailsById(id)
+    fun getDetailsById(id: String) = repository.solarDao.getDetailsById(id)
 
 
     //
@@ -47,12 +48,14 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
 
     val solarLiveData = MutableLiveData<SolarsList>()
     var solarDetailsLiveData = MutableLiveData<Solar>()
+
+
     fun fetchSolar(
         format: String = "json",
         api_key: String = "5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws",
         lat: Double = 0.0,
         lon: Double = 0.0,
-        file_id:String = "2-566510-EPW-CSWD-epw",
+        file_id: String = "2-566510-EPW-CSWD-epw",
         system_capacity: Double = 4.0,
         azimuth: Double = 180.0,
         tilt: Double = 40.0,
