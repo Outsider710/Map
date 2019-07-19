@@ -11,7 +11,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.apator.map.R
 import com.apator.map.database.Entity.SolarEntity
-import com.apator.map.helpers.mappers.SolarJSONToDb
+import com.apator.map.helpers.mappers.SolarDetailsJSONToDb
+import com.apator.map.helpers.mappers.SolarListJSONToDb
 import com.apator.map.viewmodel.SolarViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.mapboxsdk.Mapbox
@@ -35,6 +36,9 @@ class MapFragment : Fragment() {
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+
+
+
 
 
         Mapbox.getInstance(context!!, R.string.API_KEY_MAPBOX.toString())
@@ -78,6 +82,7 @@ class MapFragment : Fragment() {
         }
         fabreset.setOnClickListener {
             isFabOpen = false
+            
             view.findNavController().navigate(R.id.action_mapFragment_to_passportFragment)
         }
         fabsettings.setOnClickListener {
@@ -94,7 +99,7 @@ class MapFragment : Fragment() {
         solarViewModel.solarLiveData.observe(this, androidx.lifecycle.Observer { solarList ->
             val solarEntity = arrayListOf<SolarEntity>()
             solarList.outputs?.allStations?.forEach {
-                solarEntity.add(SolarJSONToDb.map(it!!))
+                solarEntity.add(SolarListJSONToDb.map(it!!))
             }
             solarViewModel.insertAllStations(solarEntity)
 
