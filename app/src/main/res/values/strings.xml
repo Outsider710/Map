@@ -5,6 +5,9 @@
     </string>
     <string name="DATA_API_KEY">5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="sync_key">sync</string>
-    <string name="timeWindow_key">sdasd</string>
+    <string name="sync_key">Sync_Key</string>
+    <string name="timeWindow_key">Time_Window</string>
+    <string name="sync_summary">Last Sync: Never</string>
+    <string name="timeWindow_summary">Select Time Window</string>
+    <string name="apiKey_summary">Provide Api Key</string>
 </resources>
