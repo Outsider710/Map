@@ -37,7 +37,7 @@ import kotlin.collections.ArrayList
 
 class MapFragment : Fragment(), OnMapReadyCallback {
     private val solarViewModel: SolarViewModel by viewModel()
-    private var mapView: MapView? = null
+    private lateinit var mapView: MapView
     private var isFabOpen = false
     private val geoJson = GeoJsonSource("SOURCE_ID")
     val bundle = Bundle()
@@ -55,26 +55,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
 
         mapView = view.findViewById(R.id.mapView)
-        mapView?.onCreate(savedInstanceState)
-        mapView?.getMapAsync(this)
-        syncMarkers()
-        /*{ mapboxMap ->
-
-            mapboxMap.setStyle(Style.MAPBOX_STREETS) {
-                solarViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
-
-                    it.forEach { solarEntity ->
-                        mapboxMap?.addMarker(
-                            MarkerOptions()
-                                .position(LatLng(solarEntity.lat, solarEntity.lon))
-                                .title(solarEntity.id)
-                        )
-                    }
-                })
+        mapView.apply {
+            getMapAsync {
+                onMapReady(it)
             }
+            onCreate(savedInstanceState)
+        }
 
 
-        }*/
         val fab = view.findViewById<FloatingActionButton>(R.id.fab_more)
         val fabsync = view.findViewById<FloatingActionButton>(R.id.fab_sync)
         val fabreset = view.findViewById<FloatingActionButton>(R.id.fab_reset)
@@ -181,6 +169,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         )
                 )
         )
+        syncMarkers()
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
@@ -193,6 +182,36 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             true
         }
 
+    }
+    //LifeCycle
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapView.onLowMemory()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mapView.onSaveInstanceState(outState)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mapView.onStop()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mapView.onDestroy()
     }
 
 
