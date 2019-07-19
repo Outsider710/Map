@@ -1,6 +1,7 @@
 package com.apator.map.fragments
 
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,13 +21,10 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.annotations.MarkerOptions
-import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
@@ -38,7 +36,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MapFragment : Fragment(), OnMapReadyCallback {
-    val solarViewModel: SolarViewModel by viewModel()
+    private val solarViewModel: SolarViewModel by viewModel()
     private var mapView: MapView? = null
     private var isFabOpen = false
     private val geoJson = GeoJsonSource("SOURCE_ID")
@@ -180,12 +178,19 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                         )
                 )
         )
-        mapboxMap.addOnMapClickListener(MapboxMap.OnMapClickListener {
-            val string = String.format(Locale.US, "User clicked at: %s", it.toString())
-
-            Toast.makeText(context, string, Toast.LENGTH_LONG).show()
+        mapboxMap.addOnMapClickListener {
+            val screenPoint = mapboxMap.projection.toScreenLocation(it)
+            val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
+            if (features.isNotEmpty()) {
+                val selectedFeature = features[0]
+                val title = selectedFeature.getStringProperty("title")
+                Toast.makeText(context, "You selected $title", Toast.LENGTH_SHORT).show()
+            }
             true
-        })
+        }
+
     }
+    
+
 }
 
