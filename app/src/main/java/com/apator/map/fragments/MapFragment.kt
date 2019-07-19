@@ -230,7 +230,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 activateLocationComponent(locationComponentActivationOptions)
 
                 isLocationComponentEnabled = true
-                
+
             }
 
         } else {
