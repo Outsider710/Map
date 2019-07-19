@@ -23,7 +23,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
         val lastSyncPreference: Preference = findPreference(getString(R.string.sync_key))!!
-        lastSyncPreference.summary = "Last Sync: Never"
+        lastSyncPreference.summary = lastSyncPreference.summary
         lastSyncPreference.setOnPreferenceClickListener{
             it.summary = "Last Sync: Now"
             true
