@@ -96,6 +96,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             isFabOpen = false
 
             if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
+
         }
         fabsettings.setOnClickListener {
             isFabOpen = false
@@ -229,10 +230,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 activateLocationComponent(locationComponentActivationOptions)
 
                 isLocationComponentEnabled = true
-
-                cameraMode = CameraMode.TRACKING
-
-                renderMode = RenderMode.COMPASS
+                
             }
 
         } else {
@@ -274,7 +272,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         super.onLowMemory()
         mapView.onLowMemory()
     }
-    
+
 
     override fun onPause() {
         super.onPause()
