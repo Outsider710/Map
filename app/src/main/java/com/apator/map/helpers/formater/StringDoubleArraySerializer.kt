@@ -5,15 +5,16 @@ import java.lang.reflect.Array
 import java.lang.reflect.Array.*
 
 class StringDoubleArraySerializer {
+    private val separator = ';'
     fun serialize(data:List<Double?>?):String
     {
 
         var result = ""
-        data!!.forEach { result+= getChar(R.string.serializer_separator, 0) }
+        data!!.forEach { result+= "$separator$it" }
         return result
     }
     fun deserialize(data: String): ArrayList<Double> {
-        val arrayString = data.split(getChar(R.string.serializer_separator, 0))
+        val arrayString = data.split(separator)
         val result = arrayListOf<Double>()
 
         arrayString.forEach {
