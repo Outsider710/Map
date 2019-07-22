@@ -19,7 +19,7 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
     //  database
     //
 
-    val repository = SolarRepository(ApiFactory.soalrApi, application)
+    val repository = SolarRepository(ApiFactory.solarApi, application)
 
 
     fun insertAllStations(solars: List<SolarEntity>) = viewModelScope.launch(Dispatchers.IO) {
