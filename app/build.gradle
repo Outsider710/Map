@@ -36,6 +36,7 @@ android {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -92,5 +93,7 @@ dependencies {
     kapt 'android.arch.persistence.room:compiler:1.1.1'
     //DBDebug
     debugImplementation "com.amitshekhar.android:debug-db:1.0.6"
+    //AnyChart
+    implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
 
 }
