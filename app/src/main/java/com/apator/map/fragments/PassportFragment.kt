@@ -67,6 +67,7 @@ class PassportFragment : Fragment() {
             } else {
                 details = SolarDetailsToModel.map(detailsEntity)
 
+                panel_name.text = detailsId
                 elevation_value.text = details!!.elevation.toString()
                 time_zone_value.text = details!!.tz.toString()
                 city_value.text = details!!.city
