@@ -10,4 +10,13 @@
     <string name="sync_summary">Last Sync: Never</string>
     <string name="timeWindow_summary">Select Time Window</string>
     <string name="apiKey_summary">Provide Api Key</string>
+    <string name="ac">AC</string>
+    <string name="dc">DC</string>
+    <string name="poa">POA</string>
+    <string name="solRad">Solar Radiation</string>
+    <string name="ac_unit">KW/h AC</string>
+    <string name="dc_unit">KW/h DC</string>
+    <string name="poa_unit">KWh/m2</string>
+    <string name="solRad_unit">KWh/m2/day</string>
+    <string name="serializer_separator">;</string>
 </resources>

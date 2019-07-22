@@ -29,8 +29,6 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
-import com.mapbox.mapboxsdk.location.modes.CameraMode
-import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
@@ -64,8 +62,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         geoJson = GeoJsonSource("SOURCE_ID")
         Mapbox.getInstance(context!!, R.string.API_KEY_MAPBOX.toString())
 
-
-
         mapView = view.mapView
         mapView.apply {
             getMapAsync {
@@ -73,7 +69,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
             onCreate(savedInstanceState)
         }
-
         val fab = view.findViewById<FloatingActionButton>(R.id.fab_more)
         val fabsync = view.findViewById<FloatingActionButton>(R.id.fab_sync)
         val fabreset = view.findViewById<FloatingActionButton>(R.id.fab_reset)
@@ -89,20 +84,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             val current = Date()
             val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
             view.findViewById<TextView>(R.id.map_sync_date).text = formatter.format(current)
-
             solarSync()
         }
         fabreset.setOnClickListener {
             isFabOpen = false
-
             if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
-
         }
         fabsettings.setOnClickListener {
             isFabOpen = false
             view.findNavController().navigate(R.id.action_mapFragment_to_settingsFragment2)
         }
-
         return view
     }
 
@@ -236,13 +227,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         } else {
             permissionsManager = PermissionsManager(this)
             requestPermissions(arrayOf(ACCESS_FINE_LOCATION), 99)
-
-
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-
         if (grantResults[0] == 0)
             onPermissionResult(true)
         else

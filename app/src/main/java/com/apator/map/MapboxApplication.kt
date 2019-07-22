@@ -20,7 +20,5 @@ class MapboxApplication : Application() {
             androidContext(this@MapboxApplication)
             modules(listOf(module { viewModel { SolarViewModel(androidApplication()) } }))
         }
-
-
     }
 }
