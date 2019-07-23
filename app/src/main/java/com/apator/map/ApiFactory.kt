@@ -22,13 +22,10 @@ object ApiFactory{
 
         chain.proceed(newRequest)
     }
-
     //OkhttpClient for building http request url
     private val tmdbClient = OkHttpClient().newBuilder()
         .addInterceptor(authInterceptor)
         .build()
-
-
 
     fun retrofit() : Retrofit = Retrofit.Builder()
         .client(tmdbClient)
@@ -37,7 +34,6 @@ object ApiFactory{
         .addCallAdapterFactory(CoroutineCallAdapterFactory())
         .build()
 
-
-    val soalrApi : SolarApi = retrofit().create(SolarApi::class.java)
+    val solarApi : SolarApi = retrofit().create(SolarApi::class.java)
 
 }

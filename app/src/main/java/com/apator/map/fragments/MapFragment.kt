@@ -46,6 +46,7 @@ import java.lang.Math.random
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.random.Random
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private val solarViewModel: SolarViewModel by viewModel()
@@ -75,7 +76,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
             onCreate(savedInstanceState)
         }
-
         val fab = view.findViewById<FloatingActionButton>(R.id.fab_more)
         val fabsync = view.findViewById<FloatingActionButton>(R.id.fab_sync)
         val fabreset = view.findViewById<FloatingActionButton>(R.id.fab_reset)
@@ -91,20 +91,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             val current = Date()
             val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
             view.findViewById<TextView>(R.id.map_sync_date).text = formatter.format(current)
-
             solarSync()
         }
         fabreset.setOnClickListener {
             isFabOpen = false
-
             if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
-
         }
         fabsettings.setOnClickListener {
             isFabOpen = false
             view.findNavController().navigate(R.id.action_mapFragment_to_settingsFragment2)
         }
-
         return view
     }
 
@@ -129,8 +125,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 solarEntity.add(SolarListJSONToDb.map(it!!))
             }
             solarEntity.forEach {
-                it.lat += (random() / 100.0)
-                it.lon += (random() / 100.0)
+
+                it.lat += (Random.nextDouble(0.0001,0.0009))
+                it.lon += (Random.nextDouble(0.0001,0.0009))
             }
             solarViewModel.insertAllStations(solarEntity)
 
@@ -263,13 +260,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         } else {
             permissionsManager = PermissionsManager(this)
             requestPermissions(arrayOf(ACCESS_FINE_LOCATION), 99)
-
-
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-
         if (grantResults[0] == 0)
             onPermissionResult(true)
         else
