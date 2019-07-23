@@ -17,9 +17,9 @@ data class AllStation(
     @SerializedName("id")
     val id: String?,
     @SerializedName("lat")
-    val lat: Double?,
+    val lat: String?,
     @SerializedName("lon")
-    val lon: Double?,
+    val lon: String?,
     @SerializedName("resolution")
     val resolution: Int?,
     @SerializedName("state")

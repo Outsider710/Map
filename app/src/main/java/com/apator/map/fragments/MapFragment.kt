@@ -3,7 +3,6 @@ package com.apator.map.fragments
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
-import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +11,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.apator.map.R
@@ -38,13 +36,13 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.expressions.Expression.get
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
+import java.lang.Math.random
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -62,16 +60,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         geoJson = GeoJsonSource(
             "SOURCE_ID", GeoJsonOptions()
                 .withCluster(true)
-                .withClusterRadius(50)
+                .withClusterRadius(20)
         )
         Mapbox.getInstance(context!!, R.string.API_KEY_MAPBOX.toString())
-
-
 
         mapView = view.mapView
         mapView.apply {
@@ -133,6 +128,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             solarList.outputs?.allStations?.forEach {
                 solarEntity.add(SolarListJSONToDb.map(it!!))
             }
+            solarEntity.forEach {
+                it.lat += (random() / 100.0)
+                it.lon += (random() / 100.0)
+            }
             solarViewModel.insertAllStations(solarEntity)
 
         })
@@ -172,7 +171,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             it.forEach { solarEntity ->
                 val feature = Feature.fromGeometry(Point.fromLngLat(solarEntity.lon, solarEntity.lat))
                 feature.addStringProperty("id", solarEntity.id)
-                markers.add(feature)
+
+                if (markers.filter { it.getProperty("id").asString == feature.getProperty("id").asString }.isEmpty())
+                    markers.add(feature)
             }
             geoJson.setGeoJson(FeatureCollection.fromFeatures(markers))
         })
@@ -199,7 +200,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                             iconAllowOverlap(true),
                             iconOffset(arrayOf(0f, -9f)),
                             textField(Expression.toString(get("point_count"))),
-                            textOffset(arrayOf(0f,0.5f))
+                            textOffset(arrayOf(0f, 0.5f))
 
                         )
                 )
@@ -211,25 +212,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
-            features.count()
             if (features.isNotEmpty()) {
-
-                when(features[0].getStringProperty("id"))
-                {
-                    null->{
-                        val newZoom = mapboxMap.cameraPosition.zoom+1
+            val selectedFeature = features[0]
+                when (selectedFeature.getStringProperty("id")) {
+                    null -> {
+                        val newZoom = mapboxMap.cameraPosition.zoom + 1
                         val newCameraPosition = CameraPosition.Builder().target(it).zoom(newZoom).build()
                         val cameraUpdate = CameraUpdateFactory.newCameraPosition(newCameraPosition)
 
                         mapboxMap.animateCamera(cameraUpdate)
+
+
                     }
-                    else->{
-                        val selectedFeature = features[0]
+                    else -> {
                         val id = selectedFeature.getStringProperty("id")
                         bundle.putString("id", id)
                         findNavController().navigate(R.id.action_mapFragment_to_passportFragment, bundle)
                     }
-
 
                 }
 
@@ -237,7 +236,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             true
         }
     }
-
 
 
     //Location component

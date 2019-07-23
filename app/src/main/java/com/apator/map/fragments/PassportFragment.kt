@@ -72,21 +72,10 @@ class PassportFragment : Fragment() {
                 time_zone_value.text = details!!.tz.toString()
                 city_value.text = details!!.city
                 state_value.text = details!!.state
-
-
             }
 
         })
-
-
-
-        Toast.makeText(context, details.toString(), Toast.LENGTH_SHORT).show()
-        if (details != null) {
-
-        }
-
-
-
+        
         return view
     }
 
