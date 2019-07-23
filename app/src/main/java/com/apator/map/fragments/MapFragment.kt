@@ -10,12 +10,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.apator.map.R
 import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.ValuesGenerator
@@ -44,11 +44,10 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
+import kotlinx.android.synthetic.main.fragment_map.view.map_sync_date
 import org.koin.android.viewmodel.ext.android.viewModel
-import java.lang.Math.random
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 
@@ -66,7 +65,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
+
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+
+        view.map_sync_date.text =
+            getPreferences.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
+
         geoJson = GeoJsonSource(
             "SOURCE_ID", GeoJsonOptions()
                 .withCluster(true)
@@ -93,7 +99,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         }
         fabsync.setOnClickListener {
             if (generator.isOnline(context!!)) {
+                Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
+                val getPreference = PreferenceManager.getDefaultSharedPreferences(context)
+                val generator = ValuesGenerator()
+                val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
+                getPreference.edit().putString(getString(R.string.sync_key),summary).apply()
+                val syncData  = getPreference.getString(getString(R.string.sync_key),getString(R.string.sync_summary))
+                map_sync_date.text = syncData
                 solarSync()
+
             } else {
                 Toast.makeText(context, "No Internet", Toast.LENGTH_SHORT).show()
             }
@@ -127,8 +141,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
     fun solarSync() {
-        solarViewModel.fetchSolarsAmerica()
-        solarViewModel.fetchSolarsAsia()
+        val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
+        solarViewModel.fetchSolarsAmerica(
+            getPreferences.getString(
+                getString(R.string.api_key),
+                getString(R.string.DATA_API_KEY)
+            )!!
+        )
+        solarViewModel.fetchSolarsAsia(
+            getPreferences.getString(
+                getString(R.string.api_key),
+                getString(R.string.DATA_API_KEY)
+            )!!
+        )
 
         solarViewModel.solarLiveData.observe(this, androidx.lifecycle.Observer { solarList ->
             val solarEntity = arrayListOf<SolarEntity>()

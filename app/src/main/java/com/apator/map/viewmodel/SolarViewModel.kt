@@ -51,14 +51,13 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun fetchSolar(
-        format: String = "json",
+
         api_key: String = "5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws",
         file_id: String = "2-566510-EPW-CSWD-epw"
     ) {
         scope.launch {
 
             val solar = repository.getDetails(
-                format,
                 api_key,
                 file_id
             )
@@ -66,17 +65,17 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun fetchSolarsAmerica() {
+    fun fetchSolarsAmerica(apiKey:String) {
         scope.launch {
-            val solars = repository.getSolarListAmerica()
+            val solars = repository.getSolarListAmerica(apiKey)
             solarLiveData.postValue(solars)
 
         }
     }
 
-    fun fetchSolarsAsia() {
+    fun fetchSolarsAsia(apiKey:String) {
         scope.launch {
-            val solars = repository.getSolarListAsia()
+            val solars = repository.getSolarListAsia(apiKey)
             solarLiveData.postValue(solars)
 
         }
