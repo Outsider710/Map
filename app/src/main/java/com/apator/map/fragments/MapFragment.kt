@@ -288,7 +288,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         if (granted) {
             enableLocationComponent(mapboxMap.style!!)
         } else {
-            Toast.makeText(this.context, "jeszcze jak", Toast.LENGTH_LONG).show()
+            Toast.makeText(this.context, "Permision Denied", Toast.LENGTH_LONG).show()
 
         }
     }
