@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
@@ -19,7 +18,6 @@ import com.apator.map.helpers.mappers.SolarDetailsJSONToDb
 import com.apator.map.helpers.mappers.SolarDetailsToModel
 import com.apator.map.model.Details
 import com.apator.map.viewmodel.SolarViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_passport.*
 import kotlinx.android.synthetic.main.fragment_passport.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -56,14 +54,13 @@ class PassportFragment : Fragment() {
                 })
             } else {
                 details = SolarDetailsToModel.map(detailsEntity)
-
                 panel_name.text = "${details!!.city}:$detailsId"
                 elevation_value.text = details!!.elevation.toString()
                 time_zone_value.text = details!!.tz.toString()
                 city_value.text = details!!.city
                 state_value.text = details!!.state
                 solarRes_file_value.text = detailsId
-
+                //graphs
                 APIlib.getInstance().setActiveAnyChartView(view.ac_any_chart_view)
                 genereteGraph(view.ac_any_chart_view,generateGraphLines(details!!.acMontly),getString(R.string.ac),getString(R.string.ac_unit))
                 APIlib.getInstance().setActiveAnyChartView(view.dc_any_chart_view)

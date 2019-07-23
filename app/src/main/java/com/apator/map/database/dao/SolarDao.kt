@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.apator.map.database.Entity.DetailsEntity
 import com.apator.map.database.Entity.SolarEntity
-import retrofit2.http.GET
 
 @Dao
 interface SolarDao {

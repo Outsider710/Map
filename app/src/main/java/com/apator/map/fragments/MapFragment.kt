@@ -108,7 +108,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         )
     }
 
-    private fun solarSync() {
+    fun solarSync() {
         solarViewModel.fetchSolarsAmerica()
         solarViewModel.fetchSolarsAsia()
 
@@ -118,7 +118,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 solarEntity.add(SolarListJSONToDb.map(it!!))
             }
             solarViewModel.insertAllStations(solarEntity)
-
         })
     }
 
