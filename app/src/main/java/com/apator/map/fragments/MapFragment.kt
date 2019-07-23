@@ -3,6 +3,9 @@ package com.apator.map.fragments
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +18,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.apator.map.R
 import com.apator.map.database.Entity.SolarEntity
+import com.apator.map.helpers.ValuesGenerator
 import com.apator.map.helpers.mappers.SolarListJSONToDb
 import com.apator.map.tools.DrawableToBitmap
 import com.apator.map.viewmodel.SolarViewModel
@@ -56,6 +60,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     val bundle = Bundle()
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
+    private var generator = ValuesGenerator()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -87,15 +92,21 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
         }
         fabsync.setOnClickListener {
-            Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
-            val current = Date()
-            val formatter = SimpleDateFormat("MMM dd yyyy HH:mma")
-            view.findViewById<TextView>(R.id.map_sync_date).text = formatter.format(current)
-            solarSync()
+            if (generator.isOnline(context!!)) {
+                solarSync()
+            } else {
+                Toast.makeText(context, "No Internet", Toast.LENGTH_SHORT).show()
+            }
         }
         fabreset.setOnClickListener {
             isFabOpen = false
-            if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
+            if(generator.checkLocalizationPermision(context!!)){
+                if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
+            }else{
+                Toast.makeText(context, "App Require localization Permision", Toast.LENGTH_SHORT).show()
+                requestPermissions(arrayOf(ACCESS_FINE_LOCATION), 99)
+            }
+
         }
         fabsettings.setOnClickListener {
             isFabOpen = false
@@ -126,8 +137,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
             solarEntity.forEach {
 
-                it.lat += (Random.nextDouble(0.0001,0.0009))
-                it.lon += (Random.nextDouble(0.0001,0.0009))
+                it.lat += (Random.nextDouble(0.0001, 0.0009))
+                it.lon += (Random.nextDouble(0.0001, 0.0009))
             }
             solarViewModel.insertAllStations(solarEntity)
         })
@@ -209,7 +220,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
             if (features.isNotEmpty()) {
-            val selectedFeature = features[0]
+                val selectedFeature = features[0]
                 when (selectedFeature.getStringProperty("id")) {
                     null -> {
                         val newZoom = mapboxMap.cameraPosition.zoom + 1
@@ -281,6 +292,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         }
     }
+
+
 
     //LifeCycle
     override fun onResume() {
