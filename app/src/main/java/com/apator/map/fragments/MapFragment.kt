@@ -11,8 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.apator.map.R
 import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.mappers.SolarListJSONToDb
@@ -25,6 +25,7 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -33,16 +34,19 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset
+import com.mapbox.mapboxsdk.style.expressions.Expression
+import com.mapbox.mapboxsdk.style.expressions.Expression.get
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
+import java.lang.Math.random
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.random.Random
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private val solarViewModel: SolarViewModel by viewModel()
@@ -57,9 +61,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_map, container, false)
-        geoJson = GeoJsonSource("SOURCE_ID")
+        geoJson = GeoJsonSource(
+            "SOURCE_ID", GeoJsonOptions()
+                .withCluster(true)
+                .withClusterRadius(20)
+        )
         Mapbox.getInstance(context!!, R.string.API_KEY_MAPBOX.toString())
 
         mapView = view.mapView
@@ -117,6 +124,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             solarList.outputs?.allStations?.forEach {
                 solarEntity.add(SolarListJSONToDb.map(it!!))
             }
+            solarEntity.forEach {
+
+                it.lat += (Random.nextDouble(0.0001,0.0009))
+                it.lon += (Random.nextDouble(0.0001,0.0009))
+            }
             solarViewModel.insertAllStations(solarEntity)
 
         })
@@ -156,7 +168,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             it.forEach { solarEntity ->
                 val feature = Feature.fromGeometry(Point.fromLngLat(solarEntity.lon, solarEntity.lat))
                 feature.addStringProperty("id", solarEntity.id)
-                markers.add(feature)
+
+                if (markers.filter { it.getProperty("id").asString == feature.getProperty("id").asString }.isEmpty())
+                    markers.add(feature)
             }
             geoJson.setGeoJson(FeatureCollection.fromFeatures(markers))
         })
@@ -176,15 +190,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             Style.Builder().fromUrl("mapbox://styles/helpuspls/cjy8p994g08ot1cmm5t3naox5")
                 .withSource(geoJson)
                 .withImage("ICON_ID", bitMapIcon)
-                .withLayer(
+                .withLayers(
                     SymbolLayer("LAYER_ID", "SOURCE_ID")
                         .withProperties(
-                            PropertyFactory.iconImage("ICON_ID"),
+                            iconImage("ICON_ID"),
                             iconAllowOverlap(true),
-                            iconOffset(arrayOf(0f, -9f))
+                            iconOffset(arrayOf(0f, -9f)),
+                            textField(Expression.toString(get("point_count"))),
+                            textOffset(arrayOf(0f, 0.5f))
+
                         )
                 )
         ) { enableLocationComponent(it) }
+
 
         syncMarkers()
 
@@ -192,15 +210,30 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
             if (features.isNotEmpty()) {
-                val selectedFeature = features[0]
-                val id = selectedFeature.getStringProperty("id")
-                bundle.putString("id", id)
-                Navigation.findNavController(view!!).navigate(R.id.action_mapFragment_to_passportFragment, bundle)
+            val selectedFeature = features[0]
+                when (selectedFeature.getStringProperty("id")) {
+                    null -> {
+                        val newZoom = mapboxMap.cameraPosition.zoom + 1
+                        val newCameraPosition = CameraPosition.Builder().target(it).zoom(newZoom).build()
+                        val cameraUpdate = CameraUpdateFactory.newCameraPosition(newCameraPosition)
+
+                        mapboxMap.animateCamera(cameraUpdate)
+
+
+                    }
+                    else -> {
+                        val id = selectedFeature.getStringProperty("id")
+                        bundle.putString("id", id)
+                        findNavController().navigate(R.id.action_mapFragment_to_passportFragment, bundle)
+                    }
+
+                }
+
             }
             true
         }
-
     }
+
 
     //Location component
     @SuppressLint("MissingPermission")

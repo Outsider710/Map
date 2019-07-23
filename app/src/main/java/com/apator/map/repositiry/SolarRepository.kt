@@ -58,30 +58,13 @@ class SolarRepository(private val api: SolarApi, application: Application) : Bas
     suspend fun getDetails(
         format: String,
         api_key: String,
-        lat: Double,
-        lon: Double,
-        file_id:String,
-        system_capacity: Double,
-        azimuth: Double,
-        tilt: Double,
-        array_type: Int,
-        module_type: Int,
-        losses: Double
-    ): Solar? {
+        file_id:String): Solar? {
         val response = safeApiCall(
             call = {
                 api.getSolarDetails(
                     format,
-                    //api_key,
+                    api_key,
                     file_id
-//                    lat,
-//                    lon
-//                    system_capacity,
-//                    azimuth,
-//                    tilt,
-//                    array_type,
-//                    module_type,
-//                    losses
                 ).await()
             },
             errorMessage = "Error Fetching details of solar"

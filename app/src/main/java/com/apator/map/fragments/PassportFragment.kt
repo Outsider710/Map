@@ -76,10 +76,6 @@ class PassportFragment : Fragment() {
 
         })
 
-
-
-        if (details != null) {
-        }
         return view
     }
 

@@ -6,5 +6,5 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "Solar")
 data class SolarEntity(@PrimaryKey val id:String,
-                       @ColumnInfo(name = "lat") val lat:Double,
-                       @ColumnInfo(name = "lon") val lon:Double)
+                       @ColumnInfo(name = "lat") var lat:Double,
+                       @ColumnInfo(name = "lon") var lon:Double)
