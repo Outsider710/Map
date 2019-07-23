@@ -2,6 +2,7 @@ package com.apator.map.repositiry
 
 import android.app.Application
 import androidx.annotation.WorkerThread
+import androidx.preference.PreferenceManager
 import com.apator.map.SolarApi
 import com.apator.map.database.Entity.DetailsEntity
 import com.apator.map.database.Entity.SolarEntity
@@ -35,34 +36,31 @@ class SolarRepository(private val api: SolarApi, application: Application) : Bas
     /*
     *    JSON
     */
-    suspend fun getSolarListAmerica(): SolarsList? {
-
+    suspend fun getSolarListAmerica(apiKey:String): SolarsList? {
         //safeApiCall is defined in BaseRepository.kt (https://gist.github.com/navi25/67176730f5595b3f1fb5095062a92f15)
         val solarResponse = safeApiCall(
-            call = { api.getSolarLsitAmerica().await() },
+            call = { api.getSolarLsitAmerica(apiKey).await() },
             errorMessage = "Error Fetching Popular Movies"
         )
         return solarResponse
     }
 
-    suspend fun getSolarListAsia(): SolarsList? {
+    suspend fun getSolarListAsia(apiKey:String): SolarsList? {
 
         //safeApiCall is defined in BaseRepository.kt (https://gist.github.com/navi25/67176730f5595b3f1fb5095062a92f15)
         val solarResponse = safeApiCall(
-            call = { api.getSolarLsitAsia().await() },
+            call = { api.getSolarLsitAsia(apiKey).await() },
             errorMessage = "Error Fetching list of solar"
         )
         return solarResponse
     }
 
     suspend fun getDetails(
-        format: String,
         api_key: String,
         file_id:String): Solar? {
         val response = safeApiCall(
             call = {
                 api.getSolarDetails(
-                    format,
                     api_key,
                     file_id
                 ).await()

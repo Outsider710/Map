@@ -13,6 +13,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.apator.map.R
 import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.mappers.SolarListJSONToDb
@@ -42,7 +43,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.view.*
 import org.koin.android.viewmodel.ext.android.viewModel
-import java.lang.Math.random
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -61,7 +61,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
+
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+
+        view.map_sync_date.text =
+            getPreferences.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
+
         geoJson = GeoJsonSource(
             "SOURCE_ID", GeoJsonOptions()
                 .withCluster(true)
@@ -116,8 +123,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
     fun solarSync() {
-        solarViewModel.fetchSolarsAmerica()
-        solarViewModel.fetchSolarsAsia()
+        val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
+        solarViewModel.fetchSolarsAmerica(
+            getPreferences.getString(
+                getString(R.string.api_key),
+                getString(R.string.DATA_API_KEY)
+            )!!
+        )
+        solarViewModel.fetchSolarsAsia(
+            getPreferences.getString(
+                getString(R.string.api_key),
+                getString(R.string.DATA_API_KEY)
+            )!!
+        )
 
         solarViewModel.solarLiveData.observe(this, androidx.lifecycle.Observer { solarList ->
             val solarEntity = arrayListOf<SolarEntity>()
@@ -126,8 +144,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
             solarEntity.forEach {
 
-                it.lat += (Random.nextDouble(0.0001,0.0009))
-                it.lon += (Random.nextDouble(0.0001,0.0009))
+                it.lat += (Random.nextDouble(0.0001, 0.0009))
+                it.lon += (Random.nextDouble(0.0001, 0.0009))
             }
             solarViewModel.insertAllStations(solarEntity)
         })
@@ -209,7 +227,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
             if (features.isNotEmpty()) {
-            val selectedFeature = features[0]
+                val selectedFeature = features[0]
                 when (selectedFeature.getStringProperty("id")) {
                     null -> {
                         val newZoom = mapboxMap.cameraPosition.zoom + 1

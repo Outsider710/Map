@@ -51,8 +51,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun fetchSolars() {
-        solarViewModel.fetchSolarsAmerica()
-        solarViewModel.fetchSolarsAsia()
+        val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
+        solarViewModel.fetchSolarsAmerica(
+            getPreferences.getString(
+                getString(R.string.api_key),
+                getString(R.string.DATA_API_KEY)
+            )!!
+        )
+        solarViewModel.fetchSolarsAsia(
+            getPreferences.getString(
+                getString(R.string.api_key),
+                getString(R.string.DATA_API_KEY)
+            )!!
+        )
 
         solarViewModel.solarLiveData.observe(this, Observer { solarList ->
             val solarEntity = arrayListOf<SolarEntity>()
