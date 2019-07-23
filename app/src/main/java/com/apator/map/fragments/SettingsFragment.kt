@@ -3,6 +3,7 @@ package com.apator.map.fragments
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.preference.*
 import com.apator.map.R
@@ -36,10 +37,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
         lastSyncPreference.summary =
             preferences.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
         lastSyncPreference.setOnPreferenceClickListener {
-            fetchSolars()
-            val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
-            it.summary = summary
-            preferences.edit().putString(getString(R.string.sync_key), summary).apply()
+            if(generator.isOnline(context!!)) {
+                fetchSolars()
+                val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
+                it.summary = summary
+                preferences.edit().putString(getString(R.string.sync_key), summary).apply()
+            } else {
+                Toast.makeText(context,"No Internet",Toast.LENGTH_SHORT).show()
+            }
+
+
             true
         }
         val timeWindowPreference: ListPreference = findPreference(getString(R.string.timeWindow_key))!!

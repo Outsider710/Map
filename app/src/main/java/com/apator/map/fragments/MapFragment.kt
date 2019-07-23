@@ -3,6 +3,9 @@ package com.apator.map.fragments
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -56,6 +59,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     val bundle = Bundle()
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
+    private var generator = ValuesGenerator()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -94,18 +98,29 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
         }
         fabsync.setOnClickListener {
-            Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
-            val getPreference = PreferenceManager.getDefaultSharedPreferences(context)
-            val generator = ValuesGenerator()
-            val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
-            getPreference.edit().putString(getString(R.string.sync_key),summary).apply()
-            val syncData  = getPreference.getString(getString(R.string.sync_key),getString(R.string.sync_summary))
-            map_sync_date.text = syncData
-            solarSync()
+            if (generator.isOnline(context!!)) {
+                Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
+                val getPreference = PreferenceManager.getDefaultSharedPreferences(context)
+                val generator = ValuesGenerator()
+                val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
+                getPreference.edit().putString(getString(R.string.sync_key),summary).apply()
+                val syncData  = getPreference.getString(getString(R.string.sync_key),getString(R.string.sync_summary))
+                map_sync_date.text = syncData
+                solarSync()
+
+            } else {
+                Toast.makeText(context, "No Internet", Toast.LENGTH_SHORT).show()
+            }
         }
         fabreset.setOnClickListener {
             isFabOpen = false
-            if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
+            if(generator.checkLocalizationPermision(context!!)){
+                if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
+            }else{
+                Toast.makeText(context, "App Require localization Permision", Toast.LENGTH_SHORT).show()
+                requestPermissions(arrayOf(ACCESS_FINE_LOCATION), 99)
+            }
+
         }
         fabsettings.setOnClickListener {
             isFabOpen = false
@@ -298,10 +313,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         if (granted) {
             enableLocationComponent(mapboxMap.style!!)
         } else {
-            Toast.makeText(this.context, "jeszcze jak", Toast.LENGTH_LONG).show()
+            Toast.makeText(this.context, "Permision Denied", Toast.LENGTH_LONG).show()
 
         }
     }
+
+
 
     //LifeCycle
     override fun onResume() {
