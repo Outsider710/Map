@@ -8,14 +8,13 @@
     <EditTextPreference
             android:icon="@drawable/baseline_lock_open_24"
             android:title="Your API"
-            android:key="@string/API_KEY_MAPBOX"
+            android:key="@string/api_key"
             android:summary="@string/apiKey_summary"/>
     <ListPreference
             android:icon="@drawable/baseline_calendar_today_24"
             android:title="Window Time"
             android:summary="@string/timeWindow_summary"
             android:key="@string/timeWindow_key"
-            android:defaultValue="false"
             android:entries="@array/listPreference"
             android:entryValues="@array/listValues"/>
 </PreferenceScreen>
