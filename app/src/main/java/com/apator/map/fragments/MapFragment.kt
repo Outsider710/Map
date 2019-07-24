@@ -1,14 +1,17 @@
 package com.apator.map.fragments
 
-
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -52,6 +55,7 @@ import java.net.URL
 import kotlin.random.Random
 import com.mapbox.mapboxsdk.style.expressions.Expression.zoom
 import com.mapbox.mapboxsdk.style.layers.CircleLayer
+import java.time.LocalDate
 
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
@@ -63,14 +67,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private var generator = ValuesGenerator()
-    private var from = "2014-01-01"
-    private var to = "2014-01-03"
-    private   val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
-    private   val EARTHQUAKE_SOURCE_ID = "earthquakes"
-    private   val HEATMAP_LAYER_ID = "earthquakes-heat"
-    private   val HEATMAP_LAYER_SOURCE = "earthquakes"
-    private   val CIRCLE_LAYER_ID = "earthquakes-circle"
+    private val EARTHQUAKE_SOURCE_URL =
+        "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=2014-01-02"
+    private val EARTHQUAKE_SOURCE_ID = "earthquakes"
+    private val HEATMAP_LAYER_ID = "earthquakes-heat"
+    private val HEATMAP_LAYER_SOURCE = "earthquakes"
+    private val CIRCLE_LAYER_ID = "earthquakes-circle"
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -113,8 +117,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 val getPreference = PreferenceManager.getDefaultSharedPreferences(context)
                 val generator = ValuesGenerator()
                 val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
-                getPreference.edit().putString(getString(R.string.sync_key),summary).apply()
-                val syncData  = getPreference.getString(getString(R.string.sync_key),getString(R.string.sync_summary))
+                getPreference.edit().putString(getString(R.string.sync_key), summary).apply()
+                val syncData = getPreference.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
                 map_sync_date.text = syncData
                 solarSync()
 
@@ -124,9 +128,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         }
         fabreset.setOnClickListener {
             isFabOpen = false
-            if(generator.checkLocalizationPermision(context!!)){
+            if (generator.checkLocalizationPermision(context!!)) {
                 if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
-            }else{
+            } else {
                 Toast.makeText(context, "App Require localization Permision", Toast.LENGTH_SHORT).show()
                 requestPermissions(arrayOf(ACCESS_FINE_LOCATION), 99)
             }
@@ -224,6 +228,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
         val bitMapIcon = DrawableToBitmap.drawableToBitmap(
@@ -249,13 +254,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 )
         )
         { style ->
-      /*      onStyleLoaded(style)
-            val localDate = LocalDate.now().minusDays(0)
-            Timber.d("${localDate.year}-${localDate.month}-${localDate.dayOfMonth} $localDate")
             addEarthquakeSource(style)
             addHeatmapLayer(style)
-            addCircleLayer(style)*/
-
+            addCircleLayer(style)
+        }
         syncMarkers()
 
         mapboxMap.addOnMapClickListener {
@@ -286,23 +288,22 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         }
 
     }
+
     private fun addEarthquakeSource(@NonNull loadedMapStyle: Style) {
 
-        try{
+        try {
             loadedMapStyle.addSource(GeoJsonSource(EARTHQUAKE_SOURCE_ID, URL(EARTHQUAKE_SOURCE_URL)))
-        } catch (malformedUrlException: MalformedURLException){
+        } catch (malformedUrlException: MalformedURLException) {
 
             Toast.makeText(context, "That's not an url... ", Toast.LENGTH_SHORT).show()
         }
-
-
     }
 
 
-    private fun addCircleLayer(loadedMapStyle: Style){
+    private fun addCircleLayer(loadedMapStyle: Style) {
         val circleLayer = CircleLayer(CIRCLE_LAYER_ID, EARTHQUAKE_SOURCE_ID)
         circleLayer.setProperties(
-            // Size circle radius by earthquake magnitude and zoom level
+            
             circleRadius(
                 interpolate(
                     linear(), zoom(),
@@ -319,7 +320,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 )
             ),
 
-            // Color circle by earthquake magnitude
             circleColor(
                 interpolate(
                     linear(), get("mag"),
@@ -332,7 +332,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 )
             ),
 
-            // Transition from heatmap to circle layer by zoom level
             circleOpacity(
                 interpolate(
                     linear(), zoom(),
@@ -347,7 +346,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         loadedMapStyle.addLayerBelow(circleLayer, HEATMAP_LAYER_ID)
     }
 
-    private fun addHeatmapLayer(loadedMapStyle: Style){
+    private fun addHeatmapLayer(loadedMapStyle: Style) {
         val layer = HeatmapLayer(HEATMAP_LAYER_ID, EARTHQUAKE_SOURCE_ID)
         layer.maxZoom = 2.0F
         layer.sourceLayer = HEATMAP_LAYER_SOURCE
@@ -391,7 +390,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         loadedMapStyle.addLayerAbove(layer, "waterway-label")
     }
-
 
 
     //Location component
@@ -441,7 +439,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         }
     }
-
 
 
     //LifeCycle
