@@ -60,7 +60,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         super.onCreate(savedInstanceState)
         solarViewModel.solarLiveData.observe(this, Observer { solarList ->
             if(solarList == null) {
-                Toast.makeText(context, "Błąd klucza API", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "API key error", Toast.LENGTH_SHORT).show()
                 return@Observer
             }
             solarList.forEach {
@@ -68,7 +68,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 it.lon += (Random.nextDouble(0.0001, 0.0009))
             }
             solarViewModel.insertAllStations(solarList)
-            Toast.makeText(context, "Zsynchronizowano", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
         })
     }
 
@@ -124,6 +124,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
         }
         fabreset.setOnClickListener {
+            if (!generator.isLocalizationEabled(context!!)) {
+                Toast.makeText(context, "Localization disabled", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             isFabOpen = false
             if (generator.checkLocalizationPermision(context!!)) {
                 if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()

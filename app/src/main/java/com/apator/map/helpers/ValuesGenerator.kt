@@ -3,12 +3,12 @@ package com.apator.map.helpers
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
+import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.*
-import android.location.LocationManager
-import androidx.core.content.ContextCompat
 
 
 class ValuesGenerator {
@@ -28,5 +28,10 @@ class ValuesGenerator {
     fun checkLocalizationPermision(context: Context): Boolean {
         return !(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+    }
+
+    fun isLocalizationEabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 }
