@@ -3,9 +3,6 @@ package com.apator.map.fragments
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,13 +10,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.apator.map.R
-import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.ValuesGenerator
-import com.apator.map.helpers.mappers.SolarListJSONToDb
 import com.apator.map.tools.DrawableToBitmap
 import com.apator.map.viewmodel.SolarViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -46,12 +42,16 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
-import kotlinx.android.synthetic.main.fragment_map.view.map_sync_date
 import org.koin.android.viewmodel.ext.android.viewModel
-import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
+
+    companion object {
+        const val ICON_ID = "ICON_ID"
+        const val LAYER_ID = "LAYER_ID"
+        const val SOURCE_ID = "SOURCE_ID"
+    }
     private val solarViewModel: SolarViewModel by viewModel()
     private lateinit var mapView: MapView
     private var isFabOpen = false
@@ -60,6 +60,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private var generator = ValuesGenerator()
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        solarViewModel.solarLiveData.observe(this, Observer { solarList ->
+            if (solarList == null) {
+                Toast.makeText(context, getString(R.string.api_key_error), Toast.LENGTH_SHORT).show()
+                return@Observer
+            }
+            solarList.forEach {
+                it.lat += (Random.nextDouble(0.0001, 0.0009))
+                it.lon += (Random.nextDouble(0.0001, 0.0009))
+            }
+            solarViewModel.insertAllStations(solarList)
+            Toast.makeText(context, getString(R.string.synchronization_successful), Toast.LENGTH_SHORT).show()
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,7 +91,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             getPreferences.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
 
         geoJson = GeoJsonSource(
-            "SOURCE_ID", GeoJsonOptions()
+            SOURCE_ID, GeoJsonOptions()
                 .withCluster(true)
                 .withClusterRadius(20)
         )
@@ -99,25 +116,30 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         }
         fabsync.setOnClickListener {
             if (generator.isOnline(context!!)) {
-                Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
                 val getPreference = PreferenceManager.getDefaultSharedPreferences(context)
                 val generator = ValuesGenerator()
                 val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
-                getPreference.edit().putString(getString(R.string.sync_key),summary).apply()
-                val syncData  = getPreference.getString(getString(R.string.sync_key),getString(R.string.sync_summary))
+                getPreference.edit().putString(getString(R.string.sync_key), summary).apply()
+                val syncData = getPreference.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
                 map_sync_date.text = syncData
                 solarSync()
 
             } else {
-                Toast.makeText(context, "No Internet", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
             }
         }
         fabreset.setOnClickListener {
+            if (!generator.isLocalizationEnabled(context!!)) {
+                Toast.makeText(context, getString(R.string.localization_disabled), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             isFabOpen = false
-            if(generator.checkLocalizationPermision(context!!)){
+            if (generator.checkLocalizationPermision(context!!)) {
                 if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
-            }else{
-                Toast.makeText(context, "App Require localization Permision", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, getString(R.string.app_require_localization_permission), Toast.LENGTH_SHORT)
+                    .show()
                 requestPermissions(arrayOf(ACCESS_FINE_LOCATION), 99)
             }
 
@@ -142,31 +164,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     fun solarSync() {
         val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
-        solarViewModel.fetchSolarsAmerica(
+        solarViewModel.fetchAllSolars(
             getPreferences.getString(
                 getString(R.string.api_key),
                 getString(R.string.DATA_API_KEY)
             )!!
         )
-        solarViewModel.fetchSolarsAsia(
-            getPreferences.getString(
-                getString(R.string.api_key),
-                getString(R.string.DATA_API_KEY)
-            )!!
-        )
-
-        solarViewModel.solarLiveData.observe(this, androidx.lifecycle.Observer { solarList ->
-            val solarEntity = arrayListOf<SolarEntity>()
-            solarList.outputs?.allStations?.forEach {
-                solarEntity.add(SolarListJSONToDb.map(it!!))
-            }
-            solarEntity.forEach {
-
-                it.lat += (Random.nextDouble(0.0001, 0.0009))
-                it.lon += (Random.nextDouble(0.0001, 0.0009))
-            }
-            solarViewModel.insertAllStations(solarEntity)
-        })
     }
 
     private fun hideFabMenu(
@@ -198,7 +201,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     private fun syncMarkers() {
         val markers = ArrayList<Feature>()
-        solarViewModel.getAllSolars().observe(this, androidx.lifecycle.Observer {
+        solarViewModel.getAllSolars().observe(this, Observer {
 
             it.forEach { solarEntity ->
                 val feature = Feature.fromGeometry(Point.fromLngLat(solarEntity.lon, solarEntity.lat))
@@ -222,13 +225,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             )!!
         )!!
         mapboxMap.setStyle(
-            Style.Builder().fromUrl("mapbox://styles/helpuspls/cjy8p994g08ot1cmm5t3naox5")
+            Style.Builder().fromUrl(getString(R.string.map_url))
                 .withSource(geoJson)
-                .withImage("ICON_ID", bitMapIcon)
+                .withImage(ICON_ID, bitMapIcon)
                 .withLayers(
-                    SymbolLayer("LAYER_ID", "SOURCE_ID")
+                    SymbolLayer(LAYER_ID, SOURCE_ID)
                         .withProperties(
-                            iconImage("ICON_ID"),
+                            iconImage(ICON_ID),
                             iconAllowOverlap(true),
                             iconOffset(arrayOf(0f, -9f)),
                             textField(Expression.toString(get("point_count"))),
@@ -243,7 +246,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
-            val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
+            val features = mapboxMap.queryRenderedFeatures(screenPoint, LAYER_ID)
             if (features.isNotEmpty()) {
                 val selectedFeature = features[0]
                 when (selectedFeature.getStringProperty("id")) {
@@ -306,18 +309,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
     override fun onExplanationNeeded(permissionsToExplain: List<String>) {
-        Toast.makeText(this.context, "wymagana permisja", Toast.LENGTH_LONG).show()
+        Toast.makeText(this.context, getString(R.string.permission_required), Toast.LENGTH_LONG).show()
     }
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
             enableLocationComponent(mapboxMap.style!!)
         } else {
-            Toast.makeText(this.context, "Permision Denied", Toast.LENGTH_LONG).show()
+            Toast.makeText(this.context, getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
 
         }
     }
-
 
 
     //LifeCycle

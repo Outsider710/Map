@@ -7,9 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.preference.*
 import com.apator.map.R
-import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.ValuesGenerator
-import com.apator.map.helpers.mappers.SolarListJSONToDb
 import com.apator.map.viewmodel.SolarViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -43,7 +41,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 it.summary = summary
                 preferences.edit().putString(getString(R.string.sync_key), summary).apply()
             } else {
-                Toast.makeText(context,"No Internet",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
             }
 
 
@@ -59,25 +57,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun fetchSolars() {
         val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
-        solarViewModel.fetchSolarsAmerica(
+        solarViewModel.fetchAllSolars(
             getPreferences.getString(
                 getString(R.string.api_key),
                 getString(R.string.DATA_API_KEY)
             )!!
         )
-        solarViewModel.fetchSolarsAsia(
-            getPreferences.getString(
-                getString(R.string.api_key),
-                getString(R.string.DATA_API_KEY)
-            )!!
-        )
-
         solarViewModel.solarLiveData.observe(this, Observer { solarList ->
-            val solarEntity = arrayListOf<SolarEntity>()
-            solarList.outputs?.allStations?.forEach { allStation ->
-                solarEntity.add(SolarListJSONToDb.map(allStation!!))
+            if(solarList == null) {
+                Toast.makeText(context, getString(R.string.api_key_error), Toast.LENGTH_SHORT).show()
+                return@Observer
             }
-            solarViewModel.insertAllStations(solarEntity)
+            solarViewModel.insertAllStations(solarList)
+            Toast.makeText(context, getString(R.string.synchronization_successful), Toast.LENGTH_SHORT).show()
         })
     }
 

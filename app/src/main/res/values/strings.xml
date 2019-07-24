@@ -21,4 +21,16 @@
     <string name="poa_unit">KWh/m2</string>
     <string name="solRad_unit">KWh/m2/day</string>
     <string name="serializer_separator">;</string>
+
+    <!--Toasty-->
+    <string name="localization_disabled">Localization disabled</string>
+    <string name="synchronization_successful">Synchronization successful</string>
+    <string name="api_key_error">API key error</string>
+    <string name="app_require_localization_permission">App require localization permission</string>
+    <string name="no_internet">No internet</string>
+    <string name="permission_required">Permission required</string>
+    <string name="permission_denied">Permission denied</string>
+
+    <!--Url-->
+    <string name="map_url">mapbox://styles/helpuspls/cjy8p994g08ot1cmm5t3naox5</string>
 </resources>
