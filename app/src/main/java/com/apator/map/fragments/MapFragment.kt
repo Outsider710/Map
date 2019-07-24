@@ -56,8 +56,9 @@ import kotlin.random.Random
 import com.mapbox.mapboxsdk.style.expressions.Expression.zoom
 import com.mapbox.mapboxsdk.style.layers.CircleLayer
 import java.time.LocalDate
+import java.time.LocalDateTime
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private val solarViewModel: SolarViewModel by viewModel()
     private lateinit var mapView: MapView
@@ -67,8 +68,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private var generator = ValuesGenerator()
-    private val EARTHQUAKE_SOURCE_URL =
-        "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=2014-01-02"
+    private var from = "2019-07-23"
+    private var to = LocalDateTime.now()
+    private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
     private val EARTHQUAKE_SOURCE_ID = "earthquakes"
     private val HEATMAP_LAYER_ID = "earthquakes-heat"
     private val HEATMAP_LAYER_SOURCE = "earthquakes"
@@ -303,7 +305,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private fun addCircleLayer(loadedMapStyle: Style) {
         val circleLayer = CircleLayer(CIRCLE_LAYER_ID, EARTHQUAKE_SOURCE_ID)
         circleLayer.setProperties(
-            
+
             circleRadius(
                 interpolate(
                     linear(), zoom(),
@@ -348,7 +350,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     private fun addHeatmapLayer(loadedMapStyle: Style) {
         val layer = HeatmapLayer(HEATMAP_LAYER_ID, EARTHQUAKE_SOURCE_ID)
-        layer.maxZoom = 2.0F
+        layer.maxZoom = 10.0F
         layer.sourceLayer = HEATMAP_LAYER_SOURCE
         layer.setProperties(
             heatmapColor(
