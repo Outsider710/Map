@@ -9,7 +9,6 @@ import com.apator.map.database.Entity.DetailsEntity
 import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.mappers.SolarListJSONToDb
 import com.apator.map.model.singlesolar.Solar
-import com.apator.map.model.solarlist.SolarsList
 import com.apator.map.repositiry.SolarRepository
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
@@ -84,21 +83,21 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
         scope.launch {
             val americaSolars = repository.getSolarListAmerica(apiKey)
             val asiaSolars = repository.getSolarListAsia(apiKey)
-            if(americaSolars == null || asiaSolars == null) {
+            if (americaSolars == null || asiaSolars == null) {
                 solarLiveData.postValue(null)
-            } else {
-                val mappedAmericaSolars = americaSolars.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
-                val mappedAsiaSolars = asiaSolars.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
-                val joinedSolars = ArrayList<SolarEntity>()
-
-                if(mappedAmericaSolars != null) {
-                    joinedSolars.addAll(mappedAmericaSolars)
-                }
-                if(mappedAsiaSolars != null) {
-                    joinedSolars.addAll(mappedAsiaSolars)
-                }
-                solarLiveData.postValue(joinedSolars)
+                return@launch
             }
+            val mappedAmericaSolars = americaSolars.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
+            val mappedAsiaSolars = asiaSolars.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
+            val joinedSolars = ArrayList<SolarEntity>()
+
+            if (mappedAmericaSolars != null) {
+                joinedSolars.addAll(mappedAmericaSolars)
+            }
+            if (mappedAsiaSolars != null) {
+                joinedSolars.addAll(mappedAsiaSolars)
+            }
+            solarLiveData.postValue(joinedSolars)
         }
     }
 

@@ -41,7 +41,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 it.summary = summary
                 preferences.edit().putString(getString(R.string.sync_key), summary).apply()
             } else {
-                Toast.makeText(context,"No Internet",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
             }
 
 
@@ -65,10 +65,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         )
         solarViewModel.solarLiveData.observe(this, Observer { solarList ->
             if(solarList == null) {
-                Toast.makeText(context, "Błąd klucza API", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.api_key_error), Toast.LENGTH_SHORT).show()
                 return@Observer
             }
             solarViewModel.insertAllStations(solarList)
+            Toast.makeText(context, getString(R.string.synchronization_successful), Toast.LENGTH_SHORT).show()
         })
     }
 
