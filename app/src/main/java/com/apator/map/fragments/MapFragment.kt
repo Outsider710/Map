@@ -283,7 +283,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 LocationComponentActivationOptions.builder(this.context!!, loadedMapStyle)
                     .locationComponentOptions(customLocationComponentOptions)
                     .build()
-
+//
             mapboxMap.locationComponent.apply {
 
                 activateLocationComponent(locationComponentActivationOptions)
