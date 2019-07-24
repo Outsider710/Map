@@ -3,9 +3,6 @@ package com.apator.map.fragments
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,9 +15,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import com.apator.map.R
-import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.ValuesGenerator
-import com.apator.map.helpers.mappers.SolarListJSONToDb
 import com.apator.map.tools.DrawableToBitmap
 import com.apator.map.viewmodel.SolarViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -47,9 +42,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
-import kotlinx.android.synthetic.main.fragment_map.view.map_sync_date
 import org.koin.android.viewmodel.ext.android.viewModel
-import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
@@ -160,18 +153,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     fun solarSync() {
         val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
-        /*solarViewModel.fetchSolarsAmerica(
-            getPreferences.getString(
-                getString(R.string.api_key),
-                getString(R.string.DATA_API_KEY)
-            )!!
-        )
-        solarViewModel.fetchSolarsAsia(
-            getPreferences.getString(
-                getString(R.string.api_key),
-                getString(R.string.DATA_API_KEY)
-            )!!
-        )*/
         solarViewModel.fetchAllSolars(
             getPreferences.getString(
                 getString(R.string.api_key),

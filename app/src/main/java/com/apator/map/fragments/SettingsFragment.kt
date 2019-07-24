@@ -7,9 +7,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.preference.*
 import com.apator.map.R
-import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.ValuesGenerator
-import com.apator.map.helpers.mappers.SolarListJSONToDb
 import com.apator.map.viewmodel.SolarViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
@@ -59,18 +57,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun fetchSolars() {
         val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
-        /*solarViewModel.fetchSolarsAmerica(
-            getPreferences.getString(
-                getString(R.string.api_key),
-                getString(R.string.DATA_API_KEY)
-            )!!
-        )
-        solarViewModel.fetchSolarsAsia(
-            getPreferences.getString(
-                getString(R.string.api_key),
-                getString(R.string.DATA_API_KEY)
-            )!!
-        )*/
         solarViewModel.fetchAllSolars(
             getPreferences.getString(
                 getString(R.string.api_key),
