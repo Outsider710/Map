@@ -59,7 +59,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun fetchSolars() {
         val getPreferences = PreferenceManager.getDefaultSharedPreferences(context!!)
-        solarViewModel.fetchSolarsAmerica(
+        /*solarViewModel.fetchSolarsAmerica(
             getPreferences.getString(
                 getString(R.string.api_key),
                 getString(R.string.DATA_API_KEY)
@@ -70,14 +70,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 getString(R.string.api_key),
                 getString(R.string.DATA_API_KEY)
             )!!
+        )*/
+        solarViewModel.fetchAllSolars(
+            getPreferences.getString(
+                getString(R.string.api_key),
+                getString(R.string.DATA_API_KEY)
+            )!!
         )
-
         solarViewModel.solarLiveData.observe(this, Observer { solarList ->
-            val solarEntity = arrayListOf<SolarEntity>()
-            solarList.outputs?.allStations?.forEach { allStation ->
-                solarEntity.add(SolarListJSONToDb.map(allStation!!))
+            if(solarList == null) {
+                Toast.makeText(context, "Błąd klucza API", Toast.LENGTH_SHORT).show()
+                return@Observer
             }
-            solarViewModel.insertAllStations(solarEntity)
+            solarViewModel.insertAllStations(solarList)
         })
     }
 

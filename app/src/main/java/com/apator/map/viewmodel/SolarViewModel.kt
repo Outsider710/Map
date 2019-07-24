@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.apator.map.ApiFactory
 import com.apator.map.database.Entity.DetailsEntity
 import com.apator.map.database.Entity.SolarEntity
+import com.apator.map.helpers.mappers.SolarListJSONToDb
 import com.apator.map.model.singlesolar.Solar
 import com.apator.map.model.solarlist.SolarsList
 import com.apator.map.repositiry.SolarRepository
@@ -33,7 +34,6 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
     fun getAllSolars() = repository.solarDao.getAllSolars()
     fun getDetailsById(id: String) = repository.solarDao.getDetailsById(id)
 
-
     //
     // JSON
     //
@@ -45,8 +45,7 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
 
     private val scope = CoroutineScope(coroutineContext)
 
-
-    val solarLiveData = MutableLiveData<SolarsList>()
+    val solarLiveData = MutableLiveData<List<SolarEntity>>()
     var solarDetailsLiveData = MutableLiveData<Solar>()
 
 
@@ -65,19 +64,41 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun fetchSolarsAmerica(apiKey:String) {
+    fun fetchSolarsAmerica(apiKey: String) {
         scope.launch {
             val solars = repository.getSolarListAmerica(apiKey)
-            solarLiveData.postValue(solars)
-
+            val mappedSolars = solars?.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
+            solarLiveData.postValue(mappedSolars)
         }
     }
 
-    fun fetchSolarsAsia(apiKey:String) {
+    fun fetchSolarsAsia(apiKey: String) {
         scope.launch {
             val solars = repository.getSolarListAsia(apiKey)
-            solarLiveData.postValue(solars)
+            val mappedSolars = solars?.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
+            solarLiveData.postValue(mappedSolars)
+        }
+    }
 
+    fun fetchAllSolars(apiKey: String) {
+        scope.launch {
+            val americaSolars = repository.getSolarListAmerica(apiKey)
+            val asiaSolars = repository.getSolarListAsia(apiKey)
+            if(americaSolars == null || asiaSolars == null) {
+                solarLiveData.postValue(null)
+            } else {
+                val mappedAmericaSolars = americaSolars.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
+                val mappedAsiaSolars = asiaSolars.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
+                val joinedSolars = ArrayList<SolarEntity>()
+
+                if(mappedAmericaSolars != null) {
+                    joinedSolars.addAll(mappedAmericaSolars)
+                }
+                if(mappedAsiaSolars != null) {
+                    joinedSolars.addAll(mappedAsiaSolars)
+                }
+                solarLiveData.postValue(joinedSolars)
+            }
         }
     }
 
