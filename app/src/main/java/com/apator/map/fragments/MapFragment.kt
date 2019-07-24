@@ -3,6 +3,7 @@ package com.apator.map.fragments
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -232,6 +233,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onMapReady(mapboxMap: MapboxMap) {
+
         this.mapboxMap = mapboxMap
         val bitMapIcon = DrawableToBitmap.drawableToBitmap(
             ResourcesCompat.getDrawable(
@@ -240,6 +242,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 null
             )!!
         )!!
+
         mapboxMap.setStyle(
             Style.Builder().fromUrl("mapbox://styles/helpuspls/cjy8p994g08ot1cmm5t3naox5")
                 .withSource(geoJson)
@@ -255,13 +258,21 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
                         )
                 )
+
+
         )
-        { style ->
+
+
+        {style ->
+            enableLocationComponent(style)
             addEarthquakeSource(style)
             addHeatmapLayer(style)
             addCircleLayer(style)
         }
         syncMarkers()
+
+
+
 
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
