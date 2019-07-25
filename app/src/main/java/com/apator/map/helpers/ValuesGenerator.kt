@@ -11,10 +11,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class ValuesGenerator {
+object ValuesGenerator {
     fun getActualDate(): String {
         val simpleDateFormat = SimpleDateFormat("yyyy-MMM-dd HH:mm")
         return simpleDateFormat.format(Date())
+    }
+
+    fun getDateForEarthquake(date: Date): String {
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
     }
 
     fun isOnline(context: Context): Boolean {

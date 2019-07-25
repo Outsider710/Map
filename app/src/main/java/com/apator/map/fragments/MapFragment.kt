@@ -59,8 +59,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     val bundle = Bundle()
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
-    private var generator = ValuesGenerator()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,11 +113,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
         }
         fabsync.setOnClickListener {
-            if (generator.isOnline(context!!)) {
+            if (ValuesGenerator.isOnline(context!!)) {
 //                Toast.makeText(context, "Synchronized", Toast.LENGTH_SHORT).show()
                 val getPreference = PreferenceManager.getDefaultSharedPreferences(context)
-                val generator = ValuesGenerator()
-                val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
+                val summary = "${getString(R.string.last_sync)} ${ValuesGenerator.getActualDate()}"
                 getPreference.edit().putString(getString(R.string.sync_key), summary).apply()
                 val syncData = getPreference.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
                 map_sync_date.text = syncData
@@ -130,12 +127,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             }
         }
         fabreset.setOnClickListener {
-            if (!generator.isLocalizationEnabled(context!!)) {
+            if (!ValuesGenerator.isLocalizationEnabled(context!!)) {
                 Toast.makeText(context, getString(R.string.localization_disabled), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             isFabOpen = false
-            if (generator.checkLocalizationPermision(context!!)) {
+            if (ValuesGenerator.checkLocalizationPermision(context!!)) {
                 if (mapboxMap.locationComponent.lastKnownLocation != null) targetCameraOnLocation()
             } else {
                 Toast.makeText(context, getString(R.string.app_require_localization_permission), Toast.LENGTH_SHORT)
