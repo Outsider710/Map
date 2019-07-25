@@ -9,12 +9,19 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.Observer
+import com.apator.map.database.Entity.SolarEntity
+import com.apator.map.helpers.GpsHelper
 import com.apator.map.helpers.ValuesGenerator
 import com.apator.map.model.earthquake.Earthquake
+import com.apator.map.model.earthquake.Feature
+import com.apator.map.viewmodel.SolarViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     /*
@@ -24,6 +31,9 @@ class MainActivity : AppCompatActivity() {
             get() = parentJob + Dispatchers.IO
 
         private val scope = CoroutineScope(coroutineContext)*/
+
+    private val solarViewModel: SolarViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,31 +44,32 @@ class MainActivity : AppCompatActivity() {
     private fun fetchNearEarthquakes() {
         val solarApi = ApiFactory.solarApi
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DATE, -1)
+        calendar.add(Calendar.DATE, -30)
         val prevDay = calendar.time
-        solarApi.getNearEarthquakes(
+        solarApi.getAllEarthquakes(
             ValuesGenerator.getDateForEarthquake(prevDay),
-            ValuesGenerator.getDateForEarthquake(Date()),
-            38.239930,
-            -122.672335
+            ValuesGenerator.getDateForEarthquake(Date())
         ).enqueue(object : Callback<Earthquake> {
-            override fun onFailure(call: Call<Earthquake>, t: Throwable) {
-
-            }
+            override fun onFailure(call: Call<Earthquake>, t: Throwable) {}
 
             override fun onResponse(call: Call<Earthquake>, response: Response<Earthquake>) {
-                onEarthquakeFetched(response.body()!!)
+                solarViewModel.getAllSolars().observe(this@MainActivity, Observer { solars ->
+                    val endangeredSolars = checkQuakesForSolars(response.body()!!.features!!, solars)
+                    if (!endangeredSolars.isNullOrEmpty()) {
+                        displayNotification(endangeredSolars)
+                    }
+                })
             }
-        })//.observe(this, Observer {onEarthquakeFetched(it.body()!!)})
+        })
     }
 
-    private fun onEarthquakeFetched(earthquake: Earthquake) {
-        Log.d("", earthquake.toString())
+    private fun displayNotification(endangeredSoalrs: List<String>) {
         val notification = NotificationCompat.Builder(this, getString(R.string.near_earthquake_channel_id))
             .setContentTitle(getString(R.string.near_earthquake_title))
-            .setContentText("${getString(R.string.near_earthquake_content_1)} ${earthquake.features?.size} ${getString(R.string.near_earthquake_content_2)}")
+            .setContentText("Endangered solars: ${endangeredSoalrs.size}")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setStyle(NotificationCompat.BigTextStyle().bigText("$endangeredSoalrs"))
             .build()
         NotificationManagerCompat.from(this).notify(123541, notification)
     }
@@ -78,6 +89,26 @@ class MainActivity : AppCompatActivity() {
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    private fun checkQuakesForSolars(earthquakes: List<Feature?>, solars: List<SolarEntity>): ArrayList<String> {
+        val endangeredSolars = ArrayList<String>()
+
+        earthquakes.forEach { quake ->
+            solars.forEach { solar ->
+                val distance = GpsHelper.gpsDistance(
+                    solar.lat,
+                    solar.lon,
+                    quake?.geometry!!.coordinates!![1]!!,
+                    quake.geometry.coordinates!![0]!!
+                )
+                if (distance < 60) {
+                    Log.d("", "Distance: $distance | solar_id: ${solar.id}")
+                    endangeredSolars.add(solar.id)
+                }
+            }
+        }
+        return endangeredSolars
     }
 }
 

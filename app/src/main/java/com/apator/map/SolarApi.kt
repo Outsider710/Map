@@ -11,12 +11,10 @@ import retrofit2.http.Query
 
 interface SolarApi {
 
-    @GET("https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&maxradiuskm=60")
-    fun getNearEarthquakes(
+    @GET("https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=4.3")
+    fun getAllEarthquakes(
         @Query("starttime") startDate: String,
-        @Query("endtime") endDate: String,
-        @Query("latitude") lat: Double,
-        @Query("longitude") lon: Double
+        @Query("endtime") endDate: String
     ): Call<Earthquake>
 
     @GET("api/pvwatts/v6.json?system_capacity=4&azimuth=180&tilt=40&array_type=1&module_type=1&losses=10")
