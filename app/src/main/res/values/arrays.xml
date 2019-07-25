@@ -2,10 +2,12 @@
 <resources>
     <string-array name="listPreference">
         <item>1 Day</item>
-        <item>2 Day</item>
-        <item>1 Week</item>
-        <item>1 Month</item>
-        <item>1 Year</item>
+        <item>2 Days</item>
+        <item>3 Days</item>
+        <item>4 Days</item>
+        <item>5 Days</item>
+        <item>6 Days</item>
+        <item>7 Days</item>
     </string-array>
 
     <string-array name="listValues">
@@ -14,7 +16,10 @@
         <item>3</item>
         <item>4</item>
         <item>5</item>
+        <item>6</item>
+        <item>7</item>
     </string-array>
+
     <string-array name="Months">
         <item>Jan</item>
         <item>Feb</item>

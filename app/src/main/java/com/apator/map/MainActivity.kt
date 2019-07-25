@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import com.apator.map.database.Entity.SolarEntity
 import com.apator.map.helpers.GpsHelper
 import com.apator.map.helpers.ValuesGenerator
@@ -42,15 +43,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchNearEarthquakes() {
+        val timeWindow = PreferenceManager.getDefaultSharedPreferences(this).getString(
+            getString(R.string.timeWindow_key),
+            "7"
+        )!!.toInt()
         val solarApi = ApiFactory.solarApi
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DATE, -30)
+        calendar.add(Calendar.DATE, -timeWindow)
         val prevDay = calendar.time
         solarApi.getAllEarthquakes(
             ValuesGenerator.getDateForEarthquake(prevDay),
             ValuesGenerator.getDateForEarthquake(Date())
         ).enqueue(object : Callback<Earthquake> {
-            override fun onFailure(call: Call<Earthquake>, t: Throwable) {}
+            override fun onFailure(call: Call<Earthquake>, t: Throwable) {
+                Log.e("", "Błąd podczas pobierania trzęsień ziemi")
+            }
 
             override fun onResponse(call: Call<Earthquake>, response: Response<Earthquake>) {
                 solarViewModel.getAllSolars().observe(this@MainActivity, Observer { solars ->
@@ -64,12 +71,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayNotification(endangeredSoalrs: List<String>) {
+        val count = endangeredSoalrs.size
+        val reducedSolars = endangeredSoalrs.take(7)
+        val remainingSolars = count - reducedSolars.size
+        val notificationContent = reducedSolars.joinToString(
+            separator = "\n",
+            postfix = "\n"
+        ) + if (remainingSolars != 0) "+ $remainingSolars more" else ""
+
         val notification = NotificationCompat.Builder(this, getString(R.string.near_earthquake_channel_id))
-            .setContentTitle(getString(R.string.near_earthquake_title))
-            .setContentText("Endangered solars: ${endangeredSoalrs.size}")
+            .setContentTitle("Endangered solars: $count")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setStyle(NotificationCompat.BigTextStyle().bigText("$endangeredSoalrs"))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(notificationContent))
             .build()
         NotificationManagerCompat.from(this).notify(123541, notification)
     }
@@ -91,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkQuakesForSolars(earthquakes: List<Feature?>, solars: List<SolarEntity>): ArrayList<String> {
+    private fun checkQuakesForSolars(earthquakes: List<Feature?>, solars: List<SolarEntity>): List<String> {
         val endangeredSolars = ArrayList<String>()
 
         earthquakes.forEach { quake ->
@@ -108,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        return endangeredSolars
+        return endangeredSolars.distinct()
     }
 }
 
