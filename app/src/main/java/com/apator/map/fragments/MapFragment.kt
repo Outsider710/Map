@@ -214,6 +214,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
+        mapboxMap.isDebugActive = false
         val bitMapIcon = DrawableToBitmap.drawableToBitmap(
             ResourcesCompat.getDrawable(
                 resources,
