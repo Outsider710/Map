@@ -210,7 +210,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 if (markers.filter { it.getProperty("id").asString == feature.getProperty("id").asString }.isEmpty())
                     markers.add(feature)
             }
-            geoJson.setGeoJson(FeatureCollection.fromFeatures(markers))
+            activity!!.runOnUiThread {
+                geoJson.setGeoJson(FeatureCollection.fromFeatures(markers))
+            }
         })
     }
 
@@ -241,9 +243,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 )
         ) { enableLocationComponent(it) }
 
-
         syncMarkers()
-
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, LAYER_ID)

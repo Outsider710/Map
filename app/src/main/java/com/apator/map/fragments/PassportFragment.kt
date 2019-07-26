@@ -69,6 +69,10 @@ class PassportFragment : Fragment() {
                 genereteGraph(view.poa_any_chart_view,generateGraphLines(details!!.poaMontly),getString(R.string.poa),getString(R.string.poa_unit))
                 APIlib.getInstance().setActiveAnyChartView(view.solrad_any_chart_view)
                 genereteGraph(view.solrad_any_chart_view,generateGraphLines(details!!.solradMontly),getString(R.string.solRad),getString(R.string.solRad_unit))
+                (view.solrad_any_chart_view as AnyChartView).setOnRenderedListener {
+                    view.progressBar.visibility = View.GONE
+                    view.data_container.visibility = View.VISIBLE
+                }
             }
 
         })
