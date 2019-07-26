@@ -3,17 +3,14 @@ package com.apator.map.fragments
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -57,7 +54,8 @@ import kotlin.random.Random
 import com.mapbox.mapboxsdk.style.expressions.Expression.zoom
 import com.mapbox.mapboxsdk.style.layers.CircleLayer
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
@@ -69,19 +67,20 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private var generator = ValuesGenerator()
-    private var from = "2019-07-23"
-    private var to = LocalDateTime.now()
-    private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
+    private var from =  selectOptions(1)
+    private var to = selectOptions(0)
+   // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
     private val EARTHQUAKE_SOURCE_ID = "earthquakes"
     private val HEATMAP_LAYER_ID = "earthquakes-heat"
     private val HEATMAP_LAYER_SOURCE = "earthquakes"
     private val CIRCLE_LAYER_ID = "earthquakes-circle"
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         solarViewModel.solarLiveData.observe(this, Observer { solarList ->
-            if(solarList == null) {
+            if (solarList == null) {
                 Toast.makeText(context, "API key error", Toast.LENGTH_SHORT).show()
                 return@Observer
             }
@@ -187,6 +186,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             )!!
         )
     }
+    private fun selectOptions(days: Int): LocalDate {
+        return LocalDate.now().minusDays(days.toLong())
+    }
 
     private fun hideFabMenu(
         fab: FloatingActionButton?,
@@ -258,22 +260,34 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
                         )
                 )
-
-
         )
 
+        { style ->
+           var option = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(getString(R.string.timeWindow_key), "1")?.toInt()!!
+            when (option) {
+                1 -> from = LocalDate.now().minusDays(1)
 
-        {style ->
+                2 -> from = LocalDate.now().minusDays(2)
+
+                3 -> from = LocalDate.now().minusDays(7)
+                
+                4 -> from = LocalDate.now().minusDays(31)
+
+                5 -> from = LocalDate.now().minusDays(365)
+
+                else -> {
+                    LocalDate.now()
+                }
+            }
             enableLocationComponent(style)
             addEarthquakeSource(style)
             addHeatmapLayer(style)
             addCircleLayer(style)
-        }
+            }
+
+
         syncMarkers()
-
-
-
-
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, "LAYER_ID")
@@ -286,25 +300,22 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                         val cameraUpdate = CameraUpdateFactory.newCameraPosition(newCameraPosition)
 
                         mapboxMap.animateCamera(cameraUpdate)
-
-
                     }
                     else -> {
                         val id = selectedFeature.getStringProperty("id")
                         bundle.putString("id", id)
                         findNavController().navigate(R.id.action_mapFragment_to_passportFragment, bundle)
                     }
-
                 }
-
             }
             true
         }
-
     }
 
-    private fun addEarthquakeSource(@NonNull loadedMapStyle: Style) {
 
+    private fun addEarthquakeSource(@NonNull loadedMapStyle: Style) {
+        val EARTHQUAKE_SOURCE_URL =
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
         try {
             loadedMapStyle.addSource(GeoJsonSource(EARTHQUAKE_SOURCE_ID, URL(EARTHQUAKE_SOURCE_URL)))
         } catch (malformedUrlException: MalformedURLException) {
@@ -335,6 +346,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             ),
 
             circleColor(
+
                 interpolate(
                     linear(), get("mag"),
                     literal(1), rgba(33, 102, 172, 0),
@@ -405,7 +417,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         loadedMapStyle.addLayerAbove(layer, "waterway-label")
     }
 
-
     //Location component
     @SuppressLint("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
@@ -453,7 +464,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
         }
     }
-
 
 
     //LifeCycle
