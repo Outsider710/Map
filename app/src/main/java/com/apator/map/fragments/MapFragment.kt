@@ -67,8 +67,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private var generator = ValuesGenerator()
-    private var from =  selectOptions(1)
-    private var to = selectOptions(0)
+    private var from =  LocalDate.now().minusDays(1)
+    private var to = LocalDate.now()
    // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
     private val EARTHQUAKE_SOURCE_ID = "earthquakes"
     private val HEATMAP_LAYER_ID = "earthquakes-heat"
@@ -186,10 +186,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             )!!
         )
     }
-    private fun selectOptions(days: Int): LocalDate {
-        return LocalDate.now().minusDays(days.toLong())
-    }
-
     private fun hideFabMenu(
         fab: FloatingActionButton?,
         fabsync: FloatingActionButton?,
@@ -271,10 +267,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 2 -> from = LocalDate.now().minusDays(2)
 
                 3 -> from = LocalDate.now().minusDays(7)
-                
-                4 -> from = LocalDate.now().minusDays(31)
 
-                5 -> from = LocalDate.now().minusDays(365)
+                4 -> from = LocalDate.now().minusDays(10)
+
+                5 -> from = LocalDate.now().minusDays(15)
 
                 else -> {
                     LocalDate.now()
