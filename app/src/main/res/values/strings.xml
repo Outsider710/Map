@@ -33,4 +33,12 @@
 
     <!--Url-->
     <string name="map_url">mapbox://styles/helpuspls/cjy8p994g08ot1cmm5t3naox5</string>
+
+    <!--Powaiadomienia-->
+    <string name="near_earthquake_channel_id">NEAR_EARTHQUAKES</string>
+    <string name="near_earthquake_channel">Near earthquakes</string>
+    <string name="near_earthquake_description">Displays near earthquakes</string>
+    <string name="near_earthquake_title">Near earthquakes</string>
+    <string name="near_earthquake_content_1">There are</string>
+    <string name="near_earthquake_content_2">earthquakes near you</string>
 </resources>
