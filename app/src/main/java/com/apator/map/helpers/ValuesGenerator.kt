@@ -11,10 +11,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class ValuesGenerator {
+object ValuesGenerator {
     fun getActualDate(): String {
         val simpleDateFormat = SimpleDateFormat("yyyy-MMM-dd HH:mm")
         return simpleDateFormat.format(Date())
+    }
+
+    fun getDateForEarthquake(date: Date): String {
+        return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date)
     }
 
     fun isOnline(context: Context): Boolean {
@@ -30,7 +34,7 @@ class ValuesGenerator {
                 != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
     }
 
-    fun isLocalizationEabled(context: Context): Boolean {
+    fun isLocalizationEnabled(context: Context): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }

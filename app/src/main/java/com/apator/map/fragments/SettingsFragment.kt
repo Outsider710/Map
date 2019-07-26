@@ -13,7 +13,6 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var preferences: SharedPreferences
-    private val generator = ValuesGenerator()
     private val solarViewModel: SolarViewModel by viewModel()
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
@@ -35,13 +34,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         lastSyncPreference.summary =
             preferences.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
         lastSyncPreference.setOnPreferenceClickListener {
-            if(generator.isOnline(context!!)) {
+            if (ValuesGenerator.isOnline(context!!)) {
                 fetchSolars()
-                val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
+                val summary = "${getString(R.string.last_sync)} ${ValuesGenerator.getActualDate()}"
                 it.summary = summary
                 preferences.edit().putString(getString(R.string.sync_key), summary).apply()
             } else {
-                Toast.makeText(context,"No Internet",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.no_internet), Toast.LENGTH_SHORT).show()
             }
 
 
@@ -65,10 +64,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         )
         solarViewModel.solarLiveData.observe(this, Observer { solarList ->
             if(solarList == null) {
-                Toast.makeText(context, "Błąd klucza API", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.api_key_error), Toast.LENGTH_SHORT).show()
                 return@Observer
             }
             solarViewModel.insertAllStations(solarList)
+            Toast.makeText(context, getString(R.string.synchronization_successful), Toast.LENGTH_SHORT).show()
         })
     }
 
