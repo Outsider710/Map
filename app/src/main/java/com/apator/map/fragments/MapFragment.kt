@@ -65,6 +65,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         const val LAYER_ID = "LAYER_ID"
         const val SOURCE_ID = "SOURCE_ID"
     }
+
     private val solarViewModel: SolarViewModel by viewModel()
     private lateinit var mapView: MapView
     private var isFabOpen = false
@@ -72,14 +73,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     val bundle = Bundle()
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
-    private var from =  LocalDate.now().minusDays(1)
+    private var from = LocalDate.now().minusDays(1)
     private var to = LocalDate.now()
-   // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
+    // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
     private val EARTHQUAKE_SOURCE_ID = "earthquakes"
     private val HEATMAP_LAYER_ID = "earthquakes-heat"
     private val HEATMAP_LAYER_SOURCE = "earthquakes"
     private val CIRCLE_LAYER_ID = "earthquakes-circle"
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -191,6 +191,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             )!!
         )
     }
+
     private fun hideFabMenu(
         fab: FloatingActionButton?,
         fabsync: FloatingActionButton?,
@@ -265,7 +266,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         )
 
         { style ->
-           var option = PreferenceManager.getDefaultSharedPreferences(context)
+            var option = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(getString(R.string.timeWindow_key), "1")?.toInt()!!
             when (option) {
                 1 -> from = LocalDate.now().minusDays(1)
@@ -282,7 +283,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
                 7 -> from = LocalDate.now().minusDays(7)
 
-
                 else -> {
                     LocalDate.now()
                 }
@@ -291,7 +291,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             addEarthquakeSource(style)
             addHeatmapLayer(style)
             addCircleLayer(style)
-            }
+        }
 
 
         syncMarkers()
@@ -378,8 +378,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 )
             ),
             circleStrokeColor("white"),
-            circleStrokeWidth(1.0f),
-            heatmapOpacity(0.3f)
+            circleStrokeWidth(1.0f)
         )
 
         loadedMapStyle.addLayerBelow(circleLayer, HEATMAP_LAYER_ID)
@@ -424,7 +423,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                     stop(7, 1),
                     stop(9, 0)
                 )
-            )
+            ),heatmapOpacity(0.3f)
+
         )
 
         loadedMapStyle.addLayerAbove(layer, "waterway-label")
@@ -508,4 +508,3 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
 
 }
-
