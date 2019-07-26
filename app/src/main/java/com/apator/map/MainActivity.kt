@@ -39,10 +39,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         createNotificationChannel()
-        fetchNearEarthquakes()
+        fetchNearEarthquakesAndSolars()
     }
 
-    private fun fetchNearEarthquakes() {
+    private fun fetchNearEarthquakesAndSolars() {
         val timeWindow = PreferenceManager.getDefaultSharedPreferences(this).getString(
             getString(R.string.timeWindow_key),
             "7"
@@ -75,9 +75,8 @@ class MainActivity : AppCompatActivity() {
         val reducedSolars = endangeredSoalrs.take(7)
         val remainingSolars = count - reducedSolars.size
         val notificationContent = reducedSolars.joinToString(
-            separator = "\n",
-            postfix = "\n"
-        ) + if (remainingSolars != 0) "+ $remainingSolars more" else ""
+            separator = "\n"
+        ) + if (remainingSolars != 0) "\n+ $remainingSolars more" else ""
 
         val notification = NotificationCompat.Builder(this, getString(R.string.near_earthquake_channel_id))
             .setContentTitle("Endangered solars: $count")
@@ -116,7 +115,7 @@ class MainActivity : AppCompatActivity() {
                     quake?.geometry!!.coordinates!![1]!!,
                     quake.geometry.coordinates!![0]!!
                 )
-                if (distance < 60) {
+                if (distance < 300) {
                     Log.d("", "Distance: $distance | solar_id: ${solar.id}")
                     endangeredSolars.add(solar.id)
                 }
