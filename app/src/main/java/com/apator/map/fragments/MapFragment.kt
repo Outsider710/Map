@@ -3,11 +3,14 @@ package com.apator.map.fragments
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -35,16 +38,26 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
-import com.mapbox.mapboxsdk.style.expressions.Expression.get
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import com.mapbox.mapboxsdk.style.layers.HeatmapLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
+import kotlinx.android.synthetic.main.fragment_map.view.map_sync_date
 import org.koin.android.viewmodel.ext.android.viewModel
+import java.net.MalformedURLException
+import java.net.URL
 import kotlin.random.Random
+import com.mapbox.mapboxsdk.style.expressions.Expression.zoom
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
     companion object {
@@ -59,6 +72,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     val bundle = Bundle()
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
+    private var from =  LocalDate.now().minusDays(1)
+    private var to = LocalDate.now()
+   // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
+    private val EARTHQUAKE_SOURCE_ID = "earthquakes"
+    private val HEATMAP_LAYER_ID = "earthquakes-heat"
+    private val HEATMAP_LAYER_SOURCE = "earthquakes"
+    private val CIRCLE_LAYER_ID = "earthquakes-circle"
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +98,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -168,7 +191,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             )!!
         )
     }
-
     private fun hideFabMenu(
         fab: FloatingActionButton?,
         fabsync: FloatingActionButton?,
@@ -212,7 +234,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onMapReady(mapboxMap: MapboxMap) {
+
         this.mapboxMap = mapboxMap
         mapboxMap.isDebugActive = false
         val bitMapIcon = DrawableToBitmap.drawableToBitmap(
@@ -222,6 +246,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 null
             )!!
         )!!
+
         mapboxMap.setStyle(
             Style.Builder().fromUrl(getString(R.string.map_url))
                 .withSource(geoJson)
@@ -237,7 +262,36 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
                         )
                 )
-        ) { enableLocationComponent(it) }
+        )
+
+        { style ->
+           var option = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(getString(R.string.timeWindow_key), "1")?.toInt()!!
+            when (option) {
+                1 -> from = LocalDate.now().minusDays(1)
+
+                2 -> from = LocalDate.now().minusDays(2)
+
+                3 -> from = LocalDate.now().minusDays(3)
+
+                4 -> from = LocalDate.now().minusDays(4)
+
+                5 -> from = LocalDate.now().minusDays(5)
+
+                6 -> from = LocalDate.now().minusDays(6)
+
+                7 -> from = LocalDate.now().minusDays(7)
+
+
+                else -> {
+                    LocalDate.now()
+                }
+            }
+            enableLocationComponent(style)
+            addEarthquakeSource(style)
+            addHeatmapLayer(style)
+            addCircleLayer(style)
+            }
 
 
         syncMarkers()
@@ -270,6 +324,111 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         }
     }
 
+
+    private fun addEarthquakeSource(@NonNull loadedMapStyle: Style) {
+        val EARTHQUAKE_SOURCE_URL =
+            "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
+        try {
+            loadedMapStyle.addSource(GeoJsonSource(EARTHQUAKE_SOURCE_ID, URL(EARTHQUAKE_SOURCE_URL)))
+        } catch (malformedUrlException: MalformedURLException) {
+
+            Toast.makeText(context, "That's not an url... ", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    private fun addCircleLayer(loadedMapStyle: Style) {
+        val circleLayer = CircleLayer(CIRCLE_LAYER_ID, EARTHQUAKE_SOURCE_ID)
+        circleLayer.setProperties(
+
+            circleRadius(
+                interpolate(
+                    linear(), zoom(),
+                    literal(7), interpolate(
+                        linear(), get("mag"),
+                        stop(1, 1),
+                        stop(6, 4)
+                    ),
+                    literal(16), interpolate(
+                        linear(), get("mag"),
+                        stop(1, 5),
+                        stop(6, 50)
+                    )
+                )
+            ),
+
+            circleColor(
+
+                interpolate(
+                    linear(), get("mag"),
+                    literal(1), rgba(33, 102, 172, 0),
+                    literal(2), rgb(103, 169, 207),
+                    literal(3), rgb(209, 229, 240),
+                    literal(4), rgb(253, 219, 199),
+                    literal(5), rgb(239, 138, 98),
+                    literal(6), rgb(178, 24, 43)
+                )
+            ),
+
+            circleOpacity(
+                interpolate(
+                    linear(), zoom(),
+                    stop(7, 0),
+                    stop(8, 1)
+                )
+            ),
+            circleStrokeColor("white"),
+            circleStrokeWidth(1.0f),
+            heatmapOpacity(0.3f)
+        )
+
+        loadedMapStyle.addLayerBelow(circleLayer, HEATMAP_LAYER_ID)
+    }
+
+    private fun addHeatmapLayer(loadedMapStyle: Style) {
+        val layer = HeatmapLayer(HEATMAP_LAYER_ID, EARTHQUAKE_SOURCE_ID)
+        layer.maxZoom = 10.0F
+        layer.sourceLayer = HEATMAP_LAYER_SOURCE
+        layer.setProperties(
+            heatmapColor(
+                interpolate(
+                    linear(), heatmapDensity(),
+                    literal(0), rgba(33, 102, 172, 0),
+                    literal(0.2), rgb(103, 169, 207),
+                    literal(0.4), rgb(209, 229, 240),
+                    literal(0.6), rgb(253, 219, 199),
+                    literal(0.8), rgb(239, 138, 98),
+                    literal(1), rgb(178, 24, 43)
+                )
+            ),
+
+            heatmapWeight(
+                interpolate(
+                    linear(), get("mag"),
+                    stop(0, 0),
+                    stop(6, 1)
+                )
+            ),
+
+            heatmapIntensity(
+                interpolate(
+                    linear(), zoom(),
+                    stop(0, 1),
+                    stop(9, 3)
+                )
+            ),
+
+            heatmapOpacity(
+                interpolate(
+                    linear(), zoom(),
+                    stop(7, 1),
+                    stop(9, 0)
+                )
+            )
+        )
+
+        loadedMapStyle.addLayerAbove(layer, "waterway-label")
+    }
 
     //Location component
     @SuppressLint("MissingPermission")
