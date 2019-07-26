@@ -2,7 +2,6 @@ package com.apator.map.repositiry
 
 import android.app.Application
 import androidx.annotation.WorkerThread
-import androidx.preference.PreferenceManager
 import com.apator.map.SolarApi
 import com.apator.map.database.Entity.DetailsEntity
 import com.apator.map.database.Entity.SolarEntity
@@ -39,7 +38,7 @@ class SolarRepository(private val api: SolarApi, application: Application) : Bas
     suspend fun getSolarListAmerica(apiKey:String): SolarsList? {
         //safeApiCall is defined in BaseRepository.kt (https://gist.github.com/navi25/67176730f5595b3f1fb5095062a92f15)
         val solarResponse = safeApiCall(
-            call = { api.getSolarLsitAmerica(apiKey).await() },
+            call = { api.getSolarListAmerica(apiKey).await() },
             errorMessage = "Error Fetching Popular Movies"
         )
         return solarResponse
@@ -49,7 +48,7 @@ class SolarRepository(private val api: SolarApi, application: Application) : Bas
 
         //safeApiCall is defined in BaseRepository.kt (https://gist.github.com/navi25/67176730f5595b3f1fb5095062a92f15)
         val solarResponse = safeApiCall(
-            call = { api.getSolarLsitAsia(apiKey).await() },
+            call = { api.getSolarListAsia(apiKey).await() },
             errorMessage = "Error Fetching list of solar"
         )
         return solarResponse

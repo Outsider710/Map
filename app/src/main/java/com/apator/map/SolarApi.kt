@@ -1,14 +1,21 @@
 package com.apator.map
 
+import com.apator.map.model.earthquake.Earthquake
 import com.apator.map.model.singlesolar.Solar
 import com.apator.map.model.solarlist.SolarsList
 import kotlinx.coroutines.Deferred
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface SolarApi {
+
+    @GET("https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&minmagnitude=4.3")
+    fun getAllEarthquakes(
+        @Query("starttime") startDate: String,
+        @Query("endtime") endDate: String
+    ): Call<Earthquake>
 
     @GET("api/pvwatts/v6.json?system_capacity=4&azimuth=180&tilt=40&array_type=1&module_type=1&losses=10")
     fun getSolarDetails(
@@ -17,10 +24,10 @@ interface SolarApi {
     ): Deferred<Response<Solar>>
 
     @GET("api/solar/data_query/v1.json?lat=40&lon=-105&radius=2000&all=1")
-    fun getSolarLsitAmerica(@Query("api_key") api_key: String): Deferred<Response<SolarsList>>
+    fun getSolarListAmerica(@Query("api_key") api_key: String): Deferred<Response<SolarsList>>
 
     @GET("api/solar/data_query/v1.json?lat=40&lon=85&radius=2000&all=1")
-    fun getSolarLsitAsia(@Query("api_key") api_key: String): Deferred<Response<SolarsList>>
+    fun getSolarListAsia(@Query("api_key") api_key: String): Deferred<Response<SolarsList>>
 
 
 }

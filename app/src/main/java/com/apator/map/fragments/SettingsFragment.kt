@@ -13,7 +13,6 @@ import org.koin.android.viewmodel.ext.android.viewModel
 
 class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var preferences: SharedPreferences
-    private val generator = ValuesGenerator()
     private val solarViewModel: SolarViewModel by viewModel()
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
@@ -35,9 +34,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         lastSyncPreference.summary =
             preferences.getString(getString(R.string.sync_key), getString(R.string.sync_summary))
         lastSyncPreference.setOnPreferenceClickListener {
-            if(generator.isOnline(context!!)) {
+            if (ValuesGenerator.isOnline(context!!)) {
                 fetchSolars()
-                val summary = "${getString(R.string.last_sync)} ${generator.getActualDate()}"
+                val summary = "${getString(R.string.last_sync)} ${ValuesGenerator.getActualDate()}"
                 it.summary = summary
                 preferences.edit().putString(getString(R.string.sync_key), summary).apply()
             } else {
