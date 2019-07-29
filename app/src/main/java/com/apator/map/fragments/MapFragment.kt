@@ -39,6 +39,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
 import com.mapbox.mapboxsdk.style.layers.HeatmapLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
@@ -46,15 +47,11 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
-import kotlinx.android.synthetic.main.fragment_map.view.map_sync_date
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.net.MalformedURLException
 import java.net.URL
-import kotlin.random.Random
-import com.mapbox.mapboxsdk.style.expressions.Expression.zoom
-import com.mapbox.mapboxsdk.style.layers.CircleLayer
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -177,7 +174,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 LatLng(
                     mapboxMap.locationComponent.lastKnownLocation!!.latitude,
                     mapboxMap.locationComponent.lastKnownLocation!!.longitude
-                ), 5.0
+                ), 0.0
             )
         )
     }
@@ -378,8 +375,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 )
             ),
             circleStrokeColor("white"),
-            circleStrokeWidth(1.0f),
-            heatmapOpacity(0.3f)
+            circleStrokeWidth(1.0f)
         )
 
         loadedMapStyle.addLayerBelow(circleLayer, HEATMAP_LAYER_ID)
@@ -424,7 +420,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                     stop(7, 1),
                     stop(9, 0)
                 )
-            )
+            ),
+            heatmapOpacity(0.3f)
         )
 
         loadedMapStyle.addLayerAbove(layer, "waterway-label")
