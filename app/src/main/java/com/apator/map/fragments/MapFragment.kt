@@ -75,7 +75,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
     private var from = LocalDate.now().minusDays(1)
     private var to = LocalDate.now()
-    // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
     private val EARTHQUAKE_SOURCE_ID = "earthquakes"
     private val HEATMAP_LAYER_ID = "earthquakes-heat"
     private val HEATMAP_LAYER_SOURCE = "earthquakes"
@@ -247,7 +246,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 null
             )!!
         )!!
-
         mapboxMap.setStyle(
             Style.Builder().fromUrl(getString(R.string.map_url))
                 .withSource(geoJson)
@@ -260,7 +258,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                             iconOffset(arrayOf(0f, -9f)),
                             textField(Expression.toString(get("point_count"))),
                             textOffset(arrayOf(0f, 0.5f))
-
                         )
                 )
         )
@@ -283,18 +280,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
                 7 -> from = LocalDate.now().minusDays(7)
 
-                else -> {
-                    LocalDate.now()
-                }
             }
-            enableLocationComponent(style)
-            addEarthquakeSource(style)
-            addHeatmapLayer(style)
-            addCircleLayer(style)
         }
-
-
         syncMarkers()
+        switchMap.setOnClickListener {
+            if(switchMap.isChecked()) {
+                Style.Builder().fromUrl(getString(R.string.map_url_street))
+            }
+        }
 
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
@@ -335,7 +328,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             Toast.makeText(context, "That's not an url... ", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     private fun addCircleLayer(loadedMapStyle: Style) {
         val circleLayer = CircleLayer(CIRCLE_LAYER_ID, EARTHQUAKE_SOURCE_ID)
@@ -423,7 +415,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                     stop(7, 1),
                     stop(9, 0)
                 )
-            ),heatmapOpacity(0.3f)
+            ), heatmapOpacity(0.3f)
 
         )
 

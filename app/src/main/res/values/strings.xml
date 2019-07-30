@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Map</string>
     <string name="API_KEY_MAPBOX">
-        sk.eyJ1IjoiaGVscHVzcGxzIiwiYSI6ImNqeTVweG5sdzA5OWYzbXJvZzByZW96cDQifQ.1QDWlVX6UoihEkrOFe608Q
+        pk.eyJ1IjoibWljaGFsZ3JhbGEiLCJhIjoiY2p5NDd0OXp0MGhhNTNibzM1ZTBxazF5bCJ9.80sT1VN-H93tgjGSeP2iiw
     </string>
     <string name="DATA_API_KEY">5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -33,6 +33,7 @@
 
     <!--Url-->
     <string name="map_url">mapbox://styles/helpuspls/cjy8p994g08ot1cmm5t3naox5</string>
+    <string name="map_url_street">mapbox://styles/michalgrala/cjypie6ur018o1co6ohw14qot</string>
 
     <!--Powaiadomienia-->
     <string name="near_earthquake_channel_id">NEAR_EARTHQUAKES</string>

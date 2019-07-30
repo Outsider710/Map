@@ -23,6 +23,9 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
 import kotlin.collections.ArrayList
+import com.google.firebase.analytics.FirebaseAnalytics
+import timber.log.Timber
+
 
 class MainActivity : AppCompatActivity() {
     /*
@@ -34,12 +37,17 @@ class MainActivity : AppCompatActivity() {
         private val scope = CoroutineScope(coroutineContext)*/
 
     private val solarViewModel: SolarViewModel by viewModel()
-
+    private var mFirebaseAnalytics: FirebaseAnalytics? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         createNotificationChannel()
         fetchNearEarthquakesAndSolars()
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        val bundle =  Bundle()
+        bundle.putString(FirebaseAnalytics.Param.NUMBER_OF_PASSENGERS, "Passengers")
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image")
+        mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
     }
 
     private fun fetchNearEarthquakesAndSolars() {
@@ -56,7 +64,7 @@ class MainActivity : AppCompatActivity() {
             ValuesGenerator.getDateForEarthquake(Date())
         ).enqueue(object : Callback<Earthquake> {
             override fun onFailure(call: Call<Earthquake>, t: Throwable) {
-                Log.e("", "Błąd podczas pobierania trzęsień ziemi")
+                Timber.e("Błąd podczas pobierania trzęsień ziemi")
             }
 
             override fun onResponse(call: Call<Earthquake>, response: Response<Earthquake>) {
