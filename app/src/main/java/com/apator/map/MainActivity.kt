@@ -25,14 +25,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
-    /*
-        private val parentJob = Job()
-
-        private val coroutineContext: CoroutineContext
-            get() = parentJob + Dispatchers.IO
-
-        private val scope = CoroutineScope(coroutineContext)*/
-
     private val solarViewModel: SolarViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         createNotificationChannel()
         fetchNearEarthquakesAndSolars()
-        throw RuntimeException("Błont!")
+//        throw RuntimeException("Błont!")
     }
 
     private fun fetchNearEarthquakesAndSolars() {
