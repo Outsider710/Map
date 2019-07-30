@@ -62,6 +62,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         const val SOURCE_ID = "SOURCE_ID"
     }
 
+
     private val solarViewModel: SolarViewModel by viewModel()
     private lateinit var mapView: MapView
     private var isFabOpen = false
@@ -251,9 +252,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
 
-        setMapStyle(getString(R.string.street_map_url))
-        syncMarkers()
+        when (streetMapActive) {
+            true -> setMapStyle(getString(R.string.street_map_url))
+            false -> setMapStyle(getString(R.string.satellite_map_url))
+        }
 
+        syncMarkers()
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, LAYER_ID)
@@ -290,21 +294,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 null
             )!!
         )!!
+        if (mapboxMap.style != null)
+            mapboxMap.style!!.removeLayer(LAYER_ID)
         mapboxMap.setStyle(
-            Style.Builder().fromUri(styleUrl)/*
+            Style.Builder().fromUri(styleUrl)
                 .withSource(geoJson)
                 .withImage(ICON_ID, bitMapIcon)
-                */.withLayers(
-                SymbolLayer(LAYER_ID, SOURCE_ID)
-                    .withProperties(
-                        iconImage(ICON_ID),
-                        iconAllowOverlap(true),
-                        iconOffset(arrayOf(0f, -9f)),
-                        textField(toString(get("point_count"))),
-                        textOffset(arrayOf(0f, 0.5f))
+                .withLayer(
+                    SymbolLayer(LAYER_ID, SOURCE_ID)
+                        .withProperties(
+                            iconImage(ICON_ID),
+                            iconAllowOverlap(true),
+                            iconOffset(arrayOf(0f, -9f)),
+                            textField(toString(get("point_count"))),
+                            textOffset(arrayOf(0f, 0.5f))
 
-                    )
-            )
+                        )
+                )
         ) { style ->
             val option = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(getString(R.string.timeWindow_key), "1")?.toInt()!!
