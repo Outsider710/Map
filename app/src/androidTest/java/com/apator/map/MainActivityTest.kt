@@ -4,6 +4,7 @@ package com.apator.map
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -14,6 +15,7 @@ import androidx.test.runner.AndroidJUnit4
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.anything
 import org.hamcrest.TypeSafeMatcher
 import org.junit.Rule
 import org.junit.Test
@@ -53,13 +55,13 @@ class MainActivityTest {
 
         val floatingActionButton2 = onView(
             allOf(
-                withId(R.id.fab_sync),
+                withId(R.id.fab_reset),
                 childAtPosition(
                     childAtPosition(
                         withId(R.id.my_nav_host_fragment),
                         0
                     ),
-                    3
+                    2
                 ),
                 isDisplayed()
             )
@@ -80,6 +82,91 @@ class MainActivityTest {
             )
         )
         floatingActionButton3.perform(click())
+
+        val floatingActionButton4 = onView(
+            allOf(
+                withId(R.id.fab_reset),
+                childAtPosition(
+                    childAtPosition(
+                        withId(R.id.my_nav_host_fragment),
+                        0
+                    ),
+                    2
+                ),
+                isDisplayed()
+            )
+        )
+        floatingActionButton4.perform(click())
+
+        val floatingActionButton5 = onView(
+            allOf(
+                withId(R.id.fab_settings),
+                childAtPosition(
+                    childAtPosition(
+                        withId(R.id.my_nav_host_fragment),
+                        0
+                    ),
+                    1
+                ),
+                isDisplayed()
+            )
+        )
+        floatingActionButton5.perform(click())
+
+        val linearLayout = onView(
+            allOf(
+                childAtPosition(
+                    allOf(
+                        withId(R.id.recycler_view),
+                        childAtPosition(
+                            withId(android.R.id.list_container),
+                            0
+                        )
+                    ),
+                    2
+                ),
+                isDisplayed()
+            )
+        )
+        linearLayout.perform(click())
+
+        val appCompatCheckedTextView = onData(anything())
+            .inAdapterView(
+                allOf(
+                    withId(R.id.select_dialog_listview),
+                    childAtPosition(
+                        withId(R.id.contentPanel),
+                        0
+                    )
+                )
+            )
+            .atPosition(5)
+        appCompatCheckedTextView.perform(click())
+
+        val linearLayout2 = onView(
+            allOf(
+                childAtPosition(
+                    allOf(
+                        withId(R.id.recycler_view),
+                        childAtPosition(
+                            withId(android.R.id.list_container),
+                            0
+                        )
+                    ),
+                    0
+                ),
+                isDisplayed()
+            )
+        )
+        linearLayout2.perform(click())
+
+        pressBack()
+
+        pressBack()
+
+        pressBack()
+
+        pressBack()
     }
 
     private fun childAtPosition(

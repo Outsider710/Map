@@ -43,11 +43,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         createNotificationChannel()
         fetchNearEarthquakesAndSolars()
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
-        val bundle =  Bundle()
-        bundle.putString(FirebaseAnalytics.Param.NUMBER_OF_PASSENGERS, "Passengers")
-        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "image")
-        mFirebaseAnalytics!!.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+//        throw RuntimeException("Błont!")
     }
 
     private fun fetchNearEarthquakesAndSolars() {

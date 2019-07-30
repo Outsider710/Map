@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
@@ -39,6 +40,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
+import com.mapbox.mapboxsdk.style.layers.CircleLayer
 import com.mapbox.mapboxsdk.style.layers.HeatmapLayer
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
@@ -46,15 +48,11 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.fragment_map.*
 import kotlinx.android.synthetic.main.fragment_map.view.*
-import kotlinx.android.synthetic.main.fragment_map.view.map_sync_date
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.net.MalformedURLException
 import java.net.URL
-import kotlin.random.Random
-import com.mapbox.mapboxsdk.style.expressions.Expression.zoom
-import com.mapbox.mapboxsdk.style.layers.CircleLayer
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -73,12 +71,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
     val bundle = Bundle()
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
-    private var from = LocalDate.now().minusDays(1)
+    private var from =  LocalDate.now().minusDays(1)
     private var to = LocalDate.now()
+   // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
     private val EARTHQUAKE_SOURCE_ID = "earthquakes"
     private val HEATMAP_LAYER_ID = "earthquakes-heat"
     private val HEATMAP_LAYER_SOURCE = "earthquakes"
     private val CIRCLE_LAYER_ID = "earthquakes-circle"
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -176,7 +176,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 LatLng(
                     mapboxMap.locationComponent.lastKnownLocation!!.latitude,
                     mapboxMap.locationComponent.lastKnownLocation!!.longitude
-                ), 5.0
+                ), 0.0
             )
         )
     }
@@ -229,14 +229,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                 if (markers.filter { it.getProperty("id").asString == feature.getProperty("id").asString }.isEmpty())
                     markers.add(feature)
             }
-            geoJson.setGeoJson(FeatureCollection.fromFeatures(markers))
+            activity!!.runOnUiThread {
+                geoJson.setGeoJson(FeatureCollection.fromFeatures(markers))
+            }
         })
     }
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onMapReady(mapboxMap: MapboxMap) {
-
         this.mapboxMap = mapboxMap
         mapboxMap.isDebugActive = false
         val bitMapIcon = DrawableToBitmap.drawableToBitmap(
@@ -261,7 +261,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
                         )
                 )
         )
-
         { style ->
             var option = PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(getString(R.string.timeWindow_key), "1")?.toInt()!!
@@ -280,15 +279,30 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
 
                 7 -> from = LocalDate.now().minusDays(7)
 
+                else -> {
+                    LocalDate.now()
+                }
             }
-        }
-        syncMarkers()
-        switchMap.setOnClickListener {
-            if(switchMap.isChecked()) {
-                Style.Builder().fromUrl(getString(R.string.map_url_street))
-            }
+            enableLocationComponent(style)
+            addEarthquakeSource(style)
+            addHeatmapLayer(style)
+            addCircleLayer(style)
         }
 
+        syncMarkers()
+
+        /*switchMap.setOnCheckedChangeListener{ buttonView, isChecked ->
+                 if (isChecked) {
+                     mapboxMap.setStyle(
+                         Style.Builder().fromUrl(getString(R.string.map_url_street)))
+                     R.drawable.baseline_location_on_24,
+
+                     syncMarkers()
+                 }
+            else {
+
+                 }
+        }*/
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, LAYER_ID)

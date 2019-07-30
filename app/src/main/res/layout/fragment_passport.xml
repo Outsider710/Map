@@ -7,7 +7,15 @@
                                                    android:layout_height="match_parent"
                                                    tools:context=".fragments.PassportFragment">
 
-
+    <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,10 +30,13 @@
     <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            android:id="@+id/nestedScrollView">
         <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/data_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
             <TextView
                     android:text="Name"
@@ -41,7 +52,7 @@
                     android:gravity="center"/>
 
             <TextView
-                    android:text="latl:ang"
+                    android:text=""
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/latlang_values"
