@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         createNotificationChannel()
         fetchNearEarthquakesAndSolars()
+        throw RuntimeException("Błont!")
     }
 
     private fun fetchNearEarthquakesAndSolars() {

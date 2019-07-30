@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "331377150695",
+    "firebase_url": "https://apatormapbox.firebaseio.com",
+    "project_id": "apatormapbox",
+    "storage_bucket": "apatormapbox.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331377150695:android:4c5fda39b349136e",
+        "android_client_info": {
+          "package_name": "com.apator.map"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331377150695-id55fuuu9b5i1ml3vj9cilncsoqfu6l1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsMI6qITTZrtoJFYsioa0OgDOUU7POS-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331377150695-id55fuuu9b5i1ml3vj9cilncsoqfu6l1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,6 +6,10 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
+apply plugin: 'com.google.gms.google-services'
+
+apply plugin: 'io.fabric'
+
 //
 // Versions
 //
@@ -106,4 +110,11 @@ dependencies {
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
     //Robolectric
     testImplementation 'org.robolectric:robolectric:4.3'
+    //FIREBASE
+// Check for v11.4.2 or higher
+    implementation 'com.google.firebase:firebase-core:17.0.1'
+
+    // Add dependency
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
+
 }
