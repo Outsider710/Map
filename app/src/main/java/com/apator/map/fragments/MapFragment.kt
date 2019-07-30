@@ -37,7 +37,6 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.CircleLayer
 import com.mapbox.mapboxsdk.style.layers.HeatmapLayer
@@ -62,21 +61,22 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         const val LAYER_ID = "LAYER_ID"
         const val SOURCE_ID = "SOURCE_ID"
     }
+
     private val solarViewModel: SolarViewModel by viewModel()
     private lateinit var mapView: MapView
     private var isFabOpen = false
+    private var streetMapActive = true
     private lateinit var geoJson: GeoJsonSource
     val bundle = Bundle()
     private lateinit var mapboxMap: MapboxMap
     private var permissionsManager: PermissionsManager = PermissionsManager(this)
-    private var from =  LocalDate.now().minusDays(1)
+    private var from = LocalDate.now().minusDays(1)
     private var to = LocalDate.now()
-   // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
+    // private val EARTHQUAKE_SOURCE_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=$from&endtime=$to"
     private val EARTHQUAKE_SOURCE_ID = "earthquakes"
     private val HEATMAP_LAYER_ID = "earthquakes-heat"
     private val HEATMAP_LAYER_SOURCE = "earthquakes"
     private val CIRCLE_LAYER_ID = "earthquakes-circle"
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,10 +126,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         val fabsync = view.findViewById<FloatingActionButton>(R.id.fab_sync)
         val fabreset = view.findViewById<FloatingActionButton>(R.id.fab_reset)
         val fabsettings = view.findViewById<FloatingActionButton>(R.id.fab_settings)
+        val fabSwitchMapStyle = view.fab_switch_map_style
+
         fab.setOnClickListener {
             when (isFabOpen) {
-                false -> showFabMenu(fab, fabsync, fabsettings, fabreset)
-                true -> hideFabMenu(fab, fabsync, fabsettings, fabreset)
+                false -> showFabMenu(fab, fabsync, fabsettings, fabreset, fabSwitchMapStyle)
+                true -> hideFabMenu(fab, fabsync, fabsettings, fabreset, fabSwitchMapStyle)
             }
         }
         fabsync.setOnClickListener {
@@ -165,6 +167,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             isFabOpen = false
             view.findNavController().navigate(R.id.action_mapFragment_to_settingsFragment2)
         }
+
+        fabSwitchMapStyle.setOnClickListener {
+            when (streetMapActive) {
+                true -> setMapStyle(getString(R.string.satellite_map_url))
+                false -> setMapStyle(getString(R.string.street_map_url))
+            }
+            streetMapActive = !streetMapActive
+        }
         return view
     }
 
@@ -188,31 +198,36 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
             )!!
         )
     }
+
     private fun hideFabMenu(
         fab: FloatingActionButton?,
         fabsync: FloatingActionButton?,
         fabsettings: FloatingActionButton?,
-        fabreset: FloatingActionButton?
+        fabreset: FloatingActionButton?,
+        fabSwitchMapStyle: FloatingActionButton?
+
     ) {
         isFabOpen = false
         fab!!.setImageResource(R.drawable.baseline_more_vert_24)
         fabsync?.animate()?.translationY(0f)
         fabreset?.animate()?.translationY(0f)
         fabsettings?.animate()?.translationY(0f)
-
+        fabSwitchMapStyle?.animate()?.translationY(0f)
     }
 
     private fun showFabMenu(
         fab: FloatingActionButton?,
         fabsync: FloatingActionButton?,
         fabsettings: FloatingActionButton?,
-        fabreset: FloatingActionButton?
+        fabreset: FloatingActionButton?,
+        fabSwitchMapStyle: FloatingActionButton?
     ) {
         isFabOpen = true
         fab!!.setImageResource(R.drawable.baseline_arrow_downward_24)
         fabsync?.animate()?.translationY(-200f)
         fabreset?.animate()?.translationY(-400f)
         fabsettings?.animate()?.translationY(-600f)
+        fabSwitchMapStyle?.animate()?.translationY(-800f)
     }
 
     private fun syncMarkers() {
@@ -232,67 +247,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         })
     }
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onMapReady(mapboxMap: MapboxMap) {
-
         this.mapboxMap = mapboxMap
-        mapboxMap.isDebugActive = false
-        val bitMapIcon = DrawableToBitmap.drawableToBitmap(
-            ResourcesCompat.getDrawable(
-                resources,
-                R.drawable.baseline_location_on_24,
-                null
-            )!!
-        )!!
 
-        mapboxMap.setStyle(
-            Style.Builder().fromUrl(getString(R.string.map_url))
-                .withSource(geoJson)
-                .withImage(ICON_ID, bitMapIcon)
-                .withLayers(
-                    SymbolLayer(LAYER_ID, SOURCE_ID)
-                        .withProperties(
-                            iconImage(ICON_ID),
-                            iconAllowOverlap(true),
-                            iconOffset(arrayOf(0f, -9f)),
-                            textField(Expression.toString(get("point_count"))),
-                            textOffset(arrayOf(0f, 0.5f))
-
-                        )
-                )
-        )
-
-        { style ->
-           var option = PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(getString(R.string.timeWindow_key), "1")?.toInt()!!
-            when (option) {
-                1 -> from = LocalDate.now().minusDays(1)
-
-                2 -> from = LocalDate.now().minusDays(2)
-
-                3 -> from = LocalDate.now().minusDays(3)
-
-                4 -> from = LocalDate.now().minusDays(4)
-
-                5 -> from = LocalDate.now().minusDays(5)
-
-                6 -> from = LocalDate.now().minusDays(6)
-
-                7 -> from = LocalDate.now().minusDays(7)
-
-
-                else -> {
-                    LocalDate.now()
-                }
-            }
-            enableLocationComponent(style)
-            addEarthquakeSource(style)
-            addHeatmapLayer(style)
-            addCircleLayer(style)
-            }
-
+        setMapStyle(getString(R.string.street_map_url))
         syncMarkers()
+
         mapboxMap.addOnMapClickListener {
             val screenPoint = mapboxMap.projection.toScreenLocation(it)
             val features = mapboxMap.queryRenderedFeatures(screenPoint, LAYER_ID)
@@ -321,6 +282,57 @@ class MapFragment : Fragment(), OnMapReadyCallback, PermissionsListener {
         }
     }
 
+    private fun setMapStyle(styleUrl: String) {
+        val bitMapIcon = DrawableToBitmap.drawableToBitmap(
+            ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.baseline_location_on_24,
+                null
+            )!!
+        )!!
+        mapboxMap.setStyle(
+            Style.Builder().fromUri(styleUrl)/*
+                .withSource(geoJson)
+                .withImage(ICON_ID, bitMapIcon)
+                */.withLayers(
+                SymbolLayer(LAYER_ID, SOURCE_ID)
+                    .withProperties(
+                        iconImage(ICON_ID),
+                        iconAllowOverlap(true),
+                        iconOffset(arrayOf(0f, -9f)),
+                        textField(toString(get("point_count"))),
+                        textOffset(arrayOf(0f, 0.5f))
+
+                    )
+            )
+        ) { style ->
+            val option = PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(getString(R.string.timeWindow_key), "1")?.toInt()!!
+            when (option) {
+                1 -> from = LocalDate.now().minusDays(1)
+
+                2 -> from = LocalDate.now().minusDays(2)
+
+                3 -> from = LocalDate.now().minusDays(3)
+
+                4 -> from = LocalDate.now().minusDays(4)
+
+                5 -> from = LocalDate.now().minusDays(5)
+
+                6 -> from = LocalDate.now().minusDays(6)
+
+                7 -> from = LocalDate.now().minusDays(7)
+
+                else -> {
+                    LocalDate.now()
+                }
+            }
+            enableLocationComponent(style)
+            addEarthquakeSource(style)
+            addHeatmapLayer(style)
+            addCircleLayer(style)
+        }
+    }
 
     private fun addEarthquakeSource(@NonNull loadedMapStyle: Style) {
         val EARTHQUAKE_SOURCE_URL =

@@ -1,4 +1,4 @@
-package com.apator.map.database.Dao
+package com.apator.map.database.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao

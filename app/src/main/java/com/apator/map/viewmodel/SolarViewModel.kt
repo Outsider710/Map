@@ -49,7 +49,6 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun fetchSolar(
-
         api_key: String = "5Gibh08OmtfPAZXEF4qhLJc7ckXxBPL8PBlst9ws",
         file_id: String = "2-566510-EPW-CSWD-epw"
     ) {
@@ -60,22 +59,6 @@ class SolarViewModel(application: Application) : AndroidViewModel(application) {
                 file_id
             )
             solarDetailsLiveData.postValue(solar)
-        }
-    }
-
-    fun fetchSolarsAmerica(apiKey: String) {
-        scope.launch {
-            val solars = repository.getSolarListAmerica(apiKey)
-            val mappedSolars = solars?.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
-            solarLiveData.postValue(mappedSolars)
-        }
-    }
-
-    fun fetchSolarsAsia(apiKey: String) {
-        scope.launch {
-            val solars = repository.getSolarListAsia(apiKey)
-            val mappedSolars = solars?.outputs?.allStations?.map { SolarListJSONToDb.map(it!!) }
-            solarLiveData.postValue(mappedSolars)
         }
     }
 

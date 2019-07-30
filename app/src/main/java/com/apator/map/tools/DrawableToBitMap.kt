@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable
 
 object DrawableToBitmap {
     fun drawableToBitmap(drawable: Drawable): Bitmap? {
-        var bitmap: Bitmap? = null
+        val bitmap: Bitmap?
 
         if (drawable is BitmapDrawable) {
             if (drawable.bitmap != null) {
